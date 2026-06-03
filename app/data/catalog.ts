@@ -176,25 +176,25 @@ export const categories = [
 ];
 
 export const browseCategories = [
-  { name: "Phones", image: "/assets/category-cellphone.svg" },
+  { name: "Phones", image: "/assets/cellphone.svg" },
   {
     name: "Computers",
-    image: "/assets/category-computer.svg",
+    image: "/assets/computer.svg",
   },
   {
     name: "SmartWatch",
-    image: "/assets/category-smartwatch.svg",
+    image: "/assets/smartwatch.svg",
   },
   {
     name: "Camera",
-    image: "/assets/category-camera.svg",
+    image: "/assets/camera.svg",
   },
   {
     name: "HeadPhones",
-    image: "/assets/category-headphone.svg",
+    image: "/assets/headphone.svg",
   },
   {
     name: "Gaming",
-    image: "/assets/category-gamepad.svg",
+    image: "/assets/gamepad.svg",
   },
 ];

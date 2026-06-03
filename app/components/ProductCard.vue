@@ -60,7 +60,7 @@ const isInWishlist = computed(() => wishlist.contains(props.product._id));
           alt="Wishlist"
         />
       </span>
-      <span class="cart-icon"><img src="/assets/quick-view.svg" /></span>
+      <span class="cart-icon"><img src="/assets/view.svg" /></span>
     </span>
     <!-- <span class="product-art" :class="`art-${product.}`" /> -->
 

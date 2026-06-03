@@ -1,0 +1,28 @@
+export const products = [
+  { id: 1, name: 'HAVIT HV-G92 Gamepad', price: 120, oldPrice: 160, rating: 88, reviews: 88, tag: '-40%', art: 'gamepad', color: '#f4f4f4' },
+  { id: 2, name: 'AK-900 Wired Keyboard', price: 960, oldPrice: 1160, rating: 75, reviews: 75, tag: '-35%', art: 'keyboard', color: '#f4f4f4' },
+  { id: 3, name: 'IPS LCD Gaming Monitor', price: 370, oldPrice: 400, rating: 99, reviews: 99, tag: '-30%', art: 'monitor', color: '#f4f4f4' },
+  { id: 4, name: 'S-Series Comfort Chair', price: 375, oldPrice: 400, rating: 99, reviews: 99, tag: '-25%', art: 'chair', color: '#f4f4f4' },
+  { id: 5, name: 'The north coat', price: 260, oldPrice: 360, rating: 65, reviews: 65, art: 'jacket', color: '#f4f4f4' },
+  { id: 6, name: 'Gucci duffle bag', price: 960, oldPrice: 1160, rating: 65, reviews: 65, art: 'bag', color: '#f4f4f4' },
+  { id: 7, name: 'RGB liquid CPU Cooler', price: 160, oldPrice: 170, rating: 65, reviews: 65, art: 'cooler', color: '#f4f4f4' },
+  { id: 8, name: 'Small BookSelf', price: 360, rating: 65, reviews: 65, art: 'shelf', color: '#f4f4f4' },
+  { id: 9, name: 'Breed Dry Dog Food', price: 100, rating: 35, reviews: 35, art: 'dog-food', color: '#f4f4f4' },
+  { id: 10, name: 'CANON EOS DSLR Camera', price: 360, rating: 95, reviews: 95, art: 'camera', color: '#f4f4f4' },
+  { id: 11, name: 'ASUS FHD Gaming Laptop', price: 700, rating: 325, reviews: 325, art: 'laptop', color: '#f4f4f4' },
+  { id: 12, name: 'Curology Product Set', price: 500, rating: 145, reviews: 145, art: 'skincare', color: '#f4f4f4' },
+  { id: 13, name: 'Kids Electric Car', price: 960, rating: 65, reviews: 65, tag: 'NEW', art: 'car', color: '#f4f4f4' },
+  { id: 14, name: 'Jr. Zoom Soccer Cleats', price: 1160, rating: 35, reviews: 35, art: 'shoe', color: '#f4f4f4' },
+  { id: 15, name: 'GP11 Shooter USB Gamepad', price: 660, rating: 55, reviews: 55, tag: 'NEW', art: 'pad', color: '#f4f4f4' },
+  { id: 16, name: 'Quilted Satin Jacket', price: 660, rating: 55, reviews: 55, art: 'jacket-green', color: '#f4f4f4' }
+]
+
+export const cartItems = [
+  { ...products[0], qty: 2 },
+  { ...products[2], qty: 1 }
+]
+
+export const categories = ['Woman’s Fashion', 'Men’s Fashion', 'Electronics', 'Home & Lifestyle', 'Medicine', 'Sports & Outdoor', 'Baby’s & Toys', 'Groceries & Pets', 'Health & Beauty']
+
+export const browseCategories = ['Phones', 'Computers', 'SmartWatch', 'Camera', 'HeadPhones', 'Gaming']
+

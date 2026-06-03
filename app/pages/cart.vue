@@ -24,7 +24,9 @@ const subtotal = computed(() =>
           <span class="line-product"
             ><img :src="item.product.thumbnail" class="cart-image" />{{
               item.product.title
-            }}</span
+            }}
+            <button @click="cartStore.remove(item.product._id)" class="del-btn"><img src="/assets/icon-delete.svg" class="" height="24" width="24"/></button>
+            </span
           >
           <span>${{ item.product.price  }}</span>
           <div class="qty-box">

@@ -40,9 +40,9 @@ await productStore.fetchProductsByCollection("featured");
       <section>
         <SectionHeader eyebrow="Categories" title="Browse By Category" />
         <div class="category-grid">
-          <NuxtLink v-for="(cat, index) in browseCategories" :key="cat" class="category-tile" :class="{ active: index === 3 }" to="/category-dropdown">
-            <strong class="category-icon">{{ ['☎','⌘','◷','◉','♬','⌁'][index] }}</strong>
-            <span>{{ cat }}</span>
+          <NuxtLink v-for="(cat, index) in browseCategories" :key="cat.name" class="category-tile" :class="{ active: index === 3 }" to="/category-dropdown">
+            <img :src="cat.image" :alt="cat.name" class="category-icon" /> 
+            <span>{{ cat.name }}</span>
           </NuxtLink>
         </div>
       </section>

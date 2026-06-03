@@ -1,24 +1,21 @@
 import { defineStore } from "pinia";
-import type { LoginDto, registerDto } from "~/types/api";
+import { type User, type LoginDto, type registerDto, type UpdateProfileDto } from "~/types/api";
 
-interface User {
+interface IUser {
   name: string;
   email?: string;
   phoneNumber?: string;
 }
 
-interface AuthState {
-  user: User | null;
-  token: string | null;
-}
 const useAuthStore = defineStore(
   "auth",
   () => {
-    const user = ref<User | null>(null);
+    const user = ref<IUser | null>(null);
+    const profile = ref<User | null>(null);
     const token = ref<string | null>(null);
     const isAuthenticated = computed(() => !!token.value);
-    const { login: loginApi,register } = useAuth();
-
+    const { login: loginApi,register ,getProfile,updateProfile} = useAuth();
+  
 
     const login = async (payload: LoginDto) => {
       const response = await loginApi(payload);
@@ -27,6 +24,16 @@ const useAuthStore = defineStore(
       navigateTo("/")
       return response;
     };
+
+    const getProfileDetails =async()=>{
+      const res = await getProfile();
+       profile.value = res;
+    }
+    const updateProfileDetails =async(payload:UpdateProfileDto)=>{
+      const res = await updateProfile(payload);
+       profile.value = res;
+    }
+    
 
     const logout = async() => {
       user.value = null;
@@ -45,10 +52,13 @@ const useAuthStore = defineStore(
     return {
       user,
       token,
+      profile,
       isAuthenticated,
       login,
       logout,
-      signUp
+      signUp,
+      getProfileDetails,
+      updateProfileDetails
     };
   },
   {

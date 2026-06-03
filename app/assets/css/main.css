@@ -392,6 +392,7 @@ textarea {
 
 .product-card {
   min-width: 0;
+  position: relative;
 }
 .product-media {
   height: 250px;
@@ -401,6 +402,26 @@ textarea {
   display: grid;
   place-items: center;
   overflow: hidden;
+}
+.product-media .discount{
+height: 26px;
+position: absolute;
+top: 12px;
+left: 12px;
+border-radius: 4px;
+padding-top: 4px;
+padding-right: 12px;
+padding-bottom: 4px;
+padding-left: 12px;
+background: rgba(219, 68, 68, 1);
+font-family: Poppins;
+font-weight: 400;
+font-style: Regular;
+font-size: 12px;
+line-height: 18px;
+letter-spacing: 0%;
+color: rgba(250, 250, 250, 1);
+
 }
 .product-card-img {
   aspect-ratio: square;
@@ -601,7 +622,7 @@ textarea {
     0 30px 90px rgba(255, 255, 255, 0.18);
 }
 .promo {
-  background: #000;
+  background:#000;
   color: #fff;
   min-height: 500px;
   display: grid;
@@ -647,6 +668,9 @@ textarea {
   display: grid;
   grid-template-columns: repeat(6, 1fr);
   gap: 30px;
+}
+.category-icon{
+
 }
 .category-tile {
   height: 145px;
@@ -791,9 +815,19 @@ textarea {
 }
 .line-product {
   display: flex;
+  position: relative;
   align-items: center;
   gap: 20px;
   min-width: 0;
+}
+.line-product .del-btn{
+  position: absolute;
+  top: -5px;
+  left: -10px;
+  outline: none;
+  background: none;
+  cursor: pointer;
+  border: none;
 }
 .mini-art {
   width: 54px;

@@ -1,7 +1,13 @@
 <script setup lang="ts">
-import { cartItems } from '~/data/catalog'
+const cartStore = useCartStore();
+const { items: cartItems } = storeToRefs(cartStore);
+const subtotal = computed(() =>
+  cartItems.value.reduce(
+    (sum, item) => sum + item.product.price * item.quantity,
+    0,
+  ),
+);
 
-const total = cartItems.reduce((sum, item) => sum + item.price * item.qty, 0)
 </script>
 
 <template>
@@ -21,13 +27,15 @@ const total = cartItems.reduce((sum, item) => sum + item.price * item.qty, 0)
           <label class="checkbox-line"><input type="checkbox" checked /> Save this information for faster check-out next time</label>
         </form>
         <aside>
-          <div v-for="item in cartItems" :key="item.id" class="order-line">
-            <span class="line-product"><span class="product-art mini-art" :class="`art-${item.art}`" />{{ item.name }}</span>
-            <span>${{ item.price * item.qty }}</span>
+          <div v-for="item in cartItems" :key="item.product.id" class="order-line">
+            <span class="line-product"><img :src="item.product.thumbnail" class="cart-image" />{{
+              item.product.title
+            }}</span>
+            <span>${{ item.product.price * item.quantity }}</span>
           </div>
-          <div class="total-line"><span>Subtotal:</span><span>${{ total }}</span></div>
+          <div class="total-line"><span>Subtotal:</span><span>${{subtotal}}</span></div>
           <div class="total-line"><span>Shipping:</span><span>Free</span></div>
-          <div class="total-line"><span>Total:</span><span>${{ total }}</span></div>
+          <div class="total-line"><span>Total:</span><span>${{subtotal}}</span></div>
           <div class="pay-options">
             <label><input type="radio" name="pay" checked /> Bank</label>
             <label><input type="radio" name="pay" /> Cash on delivery</label>

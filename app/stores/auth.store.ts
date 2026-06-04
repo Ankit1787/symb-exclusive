@@ -1,5 +1,6 @@
 import { defineStore } from "pinia";
 import { type User, type LoginDto, type registerDto, type UpdateProfileDto } from "~/types/api";
+import { showApiErrorToast } from "~/utils/apiErrors";
 
 interface IUser {
   name: string;
@@ -18,16 +19,25 @@ const useAuthStore = defineStore(
   
 
     const login = async (payload: LoginDto) => {
-      const response = await loginApi(payload);
-      user.value = response?.data?.user;
-      token.value = response.data.token;
-      navigateTo("/")
-      return response;
+      try {
+        const response = await loginApi(payload);
+        user.value = response?.data?.user;
+        token.value = response.data.token;
+        navigateTo("/")
+        return response;
+      } catch (error) {
+        showApiErrorToast(error, "Invalid email or password.");
+        return null;
+      }
     };
 
     const getProfileDetails =async()=>{
-      const res = await getProfile();
-       profile.value = res;
+      try {
+        const res = await getProfile();
+         profile.value = res;
+      } catch (error) {
+        showApiErrorToast(error, "Unable to load your profile.");
+      }
     }
     const updateProfileDetails =async(payload:UpdateProfileDto)=>{
       const res = await updateProfile(payload);
@@ -42,11 +52,16 @@ const useAuthStore = defineStore(
     };
 
     const signUp = async (payload: registerDto) => {
-      const response = await register(payload);
-      user.value = response?.data?.user;
-      token.value = response.data.token;
-      navigateTo("/")
-      return response;
+      try {
+        const response = await register(payload);
+        user.value = response?.data?.user;
+        token.value = response.data.token;
+        navigateTo("/")
+        return response;
+      } catch (error) {
+        showApiErrorToast(error, "Unable to create your account.");
+        return null;
+      }
     };
 
     return {

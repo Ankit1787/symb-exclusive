@@ -1,10 +1,11 @@
 <template>
-  <div>
+  <div class="site-layout">
     <SiteHeader />
-    <main>
+    <main class="site-main">
       <slot />
     </main>
     <SiteFooter />
+    <BottomNav />
   </div>
 </template>
 

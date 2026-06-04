@@ -1,6 +1,6 @@
 <script setup lang="ts">
 const productStore= useProductStore();
-const {collections:items} = storeToRefs(productStore);
+const {collections:items, collectionLoading} = storeToRefs(productStore);
 
 const collectionMap = {
   all: "",
@@ -30,7 +30,13 @@ await productStore.fetchProductsByCollection(key,true);
       <div class="section-head">
         <h1 class="subpage-title">{{title}} ({{ items?.length }})</h1>
       </div>
-      <div class="grid-4">
+      <div v-if="collectionLoading" class="grid-4">
+        <ProductCardSkeleton
+          v-for="index in 8"
+          :key="`collection-skeleton-${index}`"
+        />
+      </div>
+      <div v-else class="grid-4">
         <ProductCard v-for="product in items" :key="product.id" :product="product" />
       </div>
 

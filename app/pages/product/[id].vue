@@ -4,13 +4,37 @@ import ProductGrid from "~/components/ProductGrid.vue";
 
 const productStore = useProductStore();
 const route = useRoute();
-const { currentProduct, similarProducts } = storeToRefs(productStore);
+const { currentProduct, similarProducts, relatedProductsLoading } =
+  storeToRefs(productStore);
 await productStore.fetchSingleProduct(route.params.id as string);
 
 const cart = useCartStore();
 const wishlist = useWishlistStore();
 
 const qty = ref(1);
+const selectedColor = ref<string | null>(null);
+const selectedSize = ref<string | null>(null);
+
+const availableColors = computed<string[]>(() => {
+  const product = currentProduct.value as any;
+  return product?.colors ?? product?.colours ?? ["#a0bce0", "#e07575"];
+});
+
+const availableSizes = computed<string[]>(() => {
+  const product = currentProduct.value as any;
+  return product?.sizes ?? ["XS", "S", "M", "L", "XL"];
+});
+
+watch(
+  currentProduct,
+  () => {
+    selectedColor.value = null;
+    selectedSize.value = null;
+    qty.value = 1;
+  },
+  { immediate: true },
+);
+
 const increase = () => {
   qty.value++;
 };
@@ -20,7 +44,24 @@ const decrease = () => {
 
 const addToCart = () => {
   if (!currentProduct.value) return;
-  cart.addToCart(currentProduct.value as any, qty.value);
+  if (availableColors.value.length && !selectedColor.value) {
+    toast.error("Please select a color.");
+    return;
+  }
+  if (availableSizes.value.length && !selectedSize.value) {
+    toast.error("Please select a size.");
+    return;
+  }
+
+  cart.addToCart(
+    {
+      ...(currentProduct.value as any),
+      selectedColor: selectedColor.value,
+      selectedSize: selectedSize.value,
+    },
+    qty.value,
+  );
+  toast.success(`${currentProduct.value.title} has been added to your cart`);
 };
 
 const toggleWishlist = () => {
@@ -58,14 +99,31 @@ const toggleWishlist = () => {
           <div class="details-price">${{ currentProduct?.price }}</div>
           <p>{{ currentProduct?.description }}</p>
           <hr class="soft-rule" />
-          <div class="swatches">
-            <span>Colours:</span><span class="swatch"></span
-            ><span class="swatch swatch-red"></span>
+          <div v-if="availableColors.length" class="swatches">
+            <span>Colours:</span>
+            <button
+              v-for="color in availableColors"
+              :key="color"
+              type="button"
+              class="swatch"
+              :class="{ active: selectedColor === color }"
+              :style="{ background: color }"
+              :aria-label="`Select color ${color}`"
+              @click="selectedColor = color"
+            ></button>
           </div>
-          <div class="sizes">
-            <span>Size:</span><span class="size">XS</span
-            ><span class="size">S</span><span class="size active">M</span
-            ><span class="size">L</span><span class="size">XL</span>
+          <div v-if="availableSizes.length" class="sizes">
+            <span>Size:</span>
+            <button
+              v-for="size in availableSizes"
+              :key="size"
+              type="button"
+              class="size"
+              :class="{ active: selectedSize === size }"
+              @click="selectedSize = size"
+            >
+              {{ size }}
+            </button>
           </div>
           <div class="buy-row">
             <div class="stepper">
@@ -105,7 +163,14 @@ const toggleWishlist = () => {
       </section>
       <section class="related-products">
         <SectionHeader eyebrow="Related Item" title="" />
-        <ProductGrid :products="similarProducts" layout="row" />
+        <ProductGrid
+          :products="similarProducts"
+          layout="row"
+          title=""
+          eyebrow="Related Item"
+          :loading="relatedProductsLoading"
+          :skeleton-count="4"
+        />
       </section>
     </div>
   </NuxtLayout>

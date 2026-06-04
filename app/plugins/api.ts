@@ -1,4 +1,5 @@
 import useAuthStore from "~/stores/auth.store";
+import { showApiErrorToast } from "~/utils/apiErrors";
 
 export default defineNuxtPlugin(() => {
   const config = useRuntimeConfig();
@@ -22,8 +23,15 @@ export default defineNuxtPlugin(() => {
     async onResponseError({ response }) {
       if (response.status === 401) {
         const authStore = useAuthStore();
+        const hadToken = Boolean(authStore.token);
 
         authStore.logout();
+        if (hadToken) {
+          showApiErrorToast(
+            { response },
+            "Your session has expired. Please log in again.",
+          );
+        }
       }
     },
   });

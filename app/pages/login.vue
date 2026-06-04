@@ -8,15 +8,18 @@ const user  = reactive<LoginDto>({
   password:''
 
 })
+const isSubmitting = ref(false);
 const handleLogin = async () => {
-  console.log('user', user.identifier);
   if(!user.identifier.trim()){
     return toast.error("enter email or phoneNumber");
   }
   if(!user.password.trim()){
     return toast.error("enter password");
   }
+  if (isSubmitting.value) return;
+  isSubmitting.value = true;
   await login(user)
+  isSubmitting.value = false;
 }
 
 </script>
@@ -32,7 +35,9 @@ const handleLogin = async () => {
           <input v-model="user.identifier" class="field" placeholder="Email or Phone Number" />
           <input v-model="user.password" class="field" placeholder="Password" type="password" />
           <div class="auth-row">
-            <button class="btn" @click="handleLogin" type="button">Log In</button>
+            <button class="btn" @click="handleLogin" type="button" :disabled="isSubmitting">
+              {{ isSubmitting ? "Logging in..." : "Log In" }}
+            </button>
             <NuxtLink class="price" to="/signup">Forget Password?</NuxtLink>
           </div>
         </form>
@@ -40,4 +45,3 @@ const handleLogin = async () => {
     </section>
   </NuxtLayout>
 </template>
-

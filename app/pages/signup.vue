@@ -12,6 +12,7 @@ const user  = reactive<registerDto>({
   confirmPassword:'',
 
 })
+const isSubmitting = ref(false);
 const handleSignUp = async () => {
   if(!user.firstName.trim()){
     toast.error("Enter First Name")
@@ -26,7 +27,10 @@ const handleSignUp = async () => {
     toast.error("Passwords do not match")
     return;
   }
+  if (isSubmitting.value) return;
+  isSubmitting.value = true;
   await signUp(user)
+  isSubmitting.value = false;
 }
 
 </script>
@@ -43,7 +47,9 @@ const handleSignUp = async () => {
           <input class="field" v-model="user.identifier" placeholder="Email or Phone Number" />
           <input class="field" v-model="user.password" placeholder="Password" type="password" />
           <input class="field" v-model="user.confirmPassword" placeholder="Confirm Password" type="password" />
-          <button class="btn" @click="handleSignUp" type="button">Create Account</button>
+          <button class="btn" @click="handleSignUp" type="button" :disabled="isSubmitting">
+            {{ isSubmitting ? "Creating account..." : "Create Account" }}
+          </button>
           <button class="btn outline" type="button">G Sign up with Google</button>
         </form>
         <p class="auth-footnote">Already have account? <NuxtLink to="/login">Log in</NuxtLink></p>

@@ -74,6 +74,12 @@ const onSwiper = (swiper: SwiperType) => { swiperRef.value = swiper; };
 const slidePrev = () => swiperRef.value?.slidePrev();
 const slideNext = () => swiperRef.value?.slideNext();
 
+
+defineExpose({
+  slidePrev,
+  slideNext,
+});
+
 // ─── Grid config ─────────────────────────────────────────────────────────────
 // When layout === 'grid', inject `grid` into every breakpoint that doesn't
 // already define one, and double slidesPerView so the grid fills correctly.

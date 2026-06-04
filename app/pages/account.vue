@@ -1,6 +1,8 @@
 <script setup lang="ts">
+import { toast } from 'vue-sonner';
 import useAuthStore from '~/stores/auth.store';
 import type { UpdateProfileDto, User } from '~/types/api';
+import { showApiErrorToast } from '~/utils/apiErrors';
 
 definePageMeta({
   middleware: ["auth"],
@@ -51,9 +53,9 @@ watch(
 const updateProfile = async () => {
   try {
     await authStore.updateProfileDetails(form);
-    // toast
+    toast.success("Profile updated successfully");
   } catch (error) {
-    // toast
+    showApiErrorToast(error, "Error updating profile");
   }
 }
 </script>

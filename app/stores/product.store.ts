@@ -1,4 +1,5 @@
 import { defineStore } from "pinia";
+import type { Ref } from "vue";
 import type { Product } from "~/types/product";
 export const useProductStore = defineStore("product", () => {
   const products = ref<Product[]>([]);
@@ -12,7 +13,38 @@ export const useProductStore = defineStore("product", () => {
   const categories = ref<string[]>([]);
   const { getAllProducts, getProductDetails, getProductsByCollection } =
     useProductApi();
-  const loading = ref(false);
+  const productsLoading = ref(false);
+  const collectionLoading = ref(false);
+  const productDetailsLoading = ref(false);
+  const relatedProductsLoading = ref(false);
+  const bestSellerLoading = ref(false);
+  const newArrivalLoading = ref(false);
+  const flashSaleLoading = ref(false);
+  const featuredLoading = ref(false);
+  const loading = computed(() => productsLoading.value);
+
+  const collectionLoadingMap: Record<string, Ref<boolean>> = {
+    "": productsLoading,
+    "best-seller": bestSellerLoading,
+    "new-arrival": newArrivalLoading,
+    "flash-sale": flashSaleLoading,
+    featured: featuredLoading,
+  };
+
+  const setCollectionLoading = (
+    collection: string,
+    value: boolean,
+    commonstate = false,
+  ) => {
+    if (commonstate) {
+      collectionLoading.value = value;
+      return;
+    }
+
+    const target = collectionLoadingMap[collection];
+    if (target) target.value = value;
+  };
+
   const addProduct = (product: Product) => {
     products.value.push(product);
   };
@@ -33,7 +65,10 @@ export const useProductStore = defineStore("product", () => {
       case "flash-sale":
         saleProducts.value = val;
         break;
-      
+
+      case "featured":
+        featuredProducts.value = val;
+        break;
 
       default:
         break;
@@ -45,22 +80,26 @@ export const useProductStore = defineStore("product", () => {
   };
   const fetchProducts = async () => {
     try {
-      loading.value = true;
+      productsLoading.value = true;
 
       const response = await getAllProducts();
       products.value = response;
     } catch (err) {
     } finally {
-      loading.value = false;
+      productsLoading.value = false;
     }
   };
   const fetchSingleProduct = async (id: string) => {
     try {
+      productDetailsLoading.value = true;
+      relatedProductsLoading.value = true;
       const response = await getProductDetails(id);
       currentProduct.value = response.product;
       similarProducts.value = response.similarProducts;
     } catch (err) {
     } finally {
+      productDetailsLoading.value = false;
+      relatedProductsLoading.value = false;
     }
   };
   const fetchProductsByCollection = async (
@@ -68,11 +107,13 @@ export const useProductStore = defineStore("product", () => {
     commonstate: boolean = false,
   ) => {
     try {
+      setCollectionLoading(collection, true, commonstate);
       const response = await getProductsByCollection(collection);
       if (commonstate) collections.value = response;
       else updateState(collection, response);
     } catch (err) {
     } finally {
+      setCollectionLoading(collection, false, commonstate);
     }
   };
 
@@ -92,5 +133,13 @@ export const useProductStore = defineStore("product", () => {
     featuredProducts,
     categories,
     loading,
+    productsLoading,
+    collectionLoading,
+    productDetailsLoading,
+    relatedProductsLoading,
+    bestSellerLoading,
+    newArrivalLoading,
+    flashSaleLoading,
+    featuredLoading,
   };
 });

@@ -17,6 +17,9 @@ export interface LoginDto {
   identifier: string;
   password: string;
 }
+export interface ForgotPasswordDto {
+  identifier: string;
+}
 export interface registerDto {
   firstName: string;
   lastName?: string;

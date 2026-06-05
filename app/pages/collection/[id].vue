@@ -21,7 +21,7 @@ const route = useRoute();
 const id = route.params.id;
 const title = routesObj[id as keyof typeof routesObj] || 'All Products';
 const key = collectionMap[id as keyof typeof collectionMap] || "";
-await productStore.fetchProductsByCollection(key,true); 
+void productStore.fetchProductsByCollection(key,true); 
 </script>
 
 <template>

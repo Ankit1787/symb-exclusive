@@ -1,10 +1,17 @@
-import type { ApiResponse, AuthResponse, LoginDto, registerDto, UpdateProfileDto, User } from "~/types/api";
+import type { ApiResponse, AuthResponse, ForgotPasswordDto, LoginDto, registerDto, UpdateProfileDto, User } from "~/types/api";
 
 export const useAuth = () => {
   const { $api } = useNuxtApp();
 
   const login = async (payload: LoginDto) => {
     const response = await $api<AuthResponse>("/auth/login", {
+      method: "POST",
+      body: payload,
+    });
+    return response;
+  };
+  const forgotPassword = async (payload: ForgotPasswordDto) => {
+    const response = await $api<ApiResponse<null>>("/auth/forgot-password", {
       method: "POST",
       body: payload,
     });
@@ -32,6 +39,7 @@ export const useAuth = () => {
 
   return {
     login,
+    forgotPassword,
     register,
     getProfile,
     updateProfile,

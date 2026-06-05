@@ -2,7 +2,7 @@
 import type { Product } from "~/types/product";
 import ProductSlider from "./ProductSlider.vue";
 const sliderRef = ref();
-const saleEndsAt = "2026-12-31T23:59:59";
+const saleEndsAt = "2026-06-10T23:59:59";
 
 const prev = () => {
   sliderRef.value?.slidePrev();

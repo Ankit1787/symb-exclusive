@@ -217,12 +217,9 @@ const autoplayConfig = computed(() => {
   box-shadow: 0 4px 16px rgba(219, 68, 68, 0.25);
 }
 
-.slider-nav-btn--prev { left: -20px; }
-.slider-nav-btn--next { right: -20px; }
+.slider-nav-btn--prev { left: -40px; }
+.slider-nav-btn--next { right: -40px; }
 
-/* Inline mode: nav sits inside the slider area */
-.base-slider--row .slider-nav-btn--prev { left: 0; }
-.base-slider--row .slider-nav-btn--next { right: 0; }
 
 /* ─── Pagination dots (if enabled) ── */
 .base-slider :deep(.swiper-pagination-bullet) {

@@ -1,6 +1,11 @@
 import { defineStore } from "pinia";
 import type { Ref } from "vue";
-import type { Product } from "~/types/product";
+import type { Product, SingleProductResponse } from "~/types/product";
+
+type FetchOptions = {
+  force?: boolean;
+};
+
 export const useProductStore = defineStore("product", () => {
   const products = ref<Product[]>([]);
   const collections = ref<Product[]>([]);
@@ -22,6 +27,11 @@ export const useProductStore = defineStore("product", () => {
   const flashSaleLoading = ref(false);
   const featuredLoading = ref(false);
   const loading = computed(() => productsLoading.value);
+  const collectionCache = ref<Record<string, Product[]>>({});
+  const productCache = ref<Record<string, SingleProductResponse>>({});
+  const productsRequest = shallowRef<Promise<void> | null>(null);
+  const collectionRequests = shallowRef<Record<string, Promise<void>>>({});
+  const productRequests = shallowRef<Record<string, Promise<void>>>({});
 
   const collectionLoadingMap: Record<string, Ref<boolean>> = {
     "": productsLoading,
@@ -78,7 +88,11 @@ export const useProductStore = defineStore("product", () => {
   const removeProduct = (product: Product) => {
     products.value = products.value.filter((p) => p.id !== product.id);
   };
-  const fetchProducts = async () => {
+  const fetchProducts = async (options: FetchOptions = {}) => {
+    if (!options.force && products.value.length) return;
+    if (productsRequest.value) return productsRequest.value;
+
+    productsRequest.value = (async () => {
     try {
       productsLoading.value = true;
 
@@ -87,34 +101,91 @@ export const useProductStore = defineStore("product", () => {
     } catch (err) {
     } finally {
       productsLoading.value = false;
+      productsRequest.value = null;
     }
+    })();
+
+    return productsRequest.value;
   };
-  const fetchSingleProduct = async (id: string) => {
+  const fetchSingleProduct = async (id: string, options: FetchOptions = {}) => {
+    if (!options.force && productCache.value[id]) {
+      currentProduct.value = productCache.value[id].product;
+      similarProducts.value = productCache.value[id].similarProducts;
+      return;
+    }
+    if (productRequests.value[id]) {
+      await productRequests.value[id];
+      if (productCache.value[id]) {
+        currentProduct.value = productCache.value[id].product;
+        similarProducts.value = productCache.value[id].similarProducts;
+      }
+      return;
+    }
+
+    productRequests.value[id] = (async () => {
     try {
       productDetailsLoading.value = true;
       relatedProductsLoading.value = true;
       const response = await getProductDetails(id);
       currentProduct.value = response.product;
       similarProducts.value = response.similarProducts;
+      productCache.value[id] = response;
     } catch (err) {
     } finally {
       productDetailsLoading.value = false;
       relatedProductsLoading.value = false;
+      delete productRequests.value[id];
     }
+    })();
+
+    return productRequests.value[id];
   };
   const fetchProductsByCollection = async (
     collection: string,
     commonstate: boolean = false,
+    options: FetchOptions = {},
   ) => {
+    if (!options.force && collectionCache.value[collection]) {
+      const cachedProducts = collectionCache.value[collection];
+      if (commonstate) collections.value = cachedProducts;
+      else updateState(collection, cachedProducts);
+      return;
+    }
+    if (collectionRequests.value[collection]) {
+      await collectionRequests.value[collection];
+      const cachedProducts = collectionCache.value[collection];
+      if (cachedProducts) {
+        if (commonstate) collections.value = cachedProducts;
+        else updateState(collection, cachedProducts);
+      }
+      return;
+    }
+
+    collectionRequests.value[collection] = (async () => {
     try {
       setCollectionLoading(collection, true, commonstate);
       const response = await getProductsByCollection(collection);
+      collectionCache.value[collection] = response;
       if (commonstate) collections.value = response;
       else updateState(collection, response);
     } catch (err) {
     } finally {
       setCollectionLoading(collection, false, commonstate);
+      delete collectionRequests.value[collection];
     }
+    })();
+
+    return collectionRequests.value[collection];
+  };
+
+  const fetchHomeProducts = async (options: FetchOptions = {}) => {
+    await Promise.all([
+      fetchProducts(options),
+      fetchProductsByCollection("best-seller", false, options),
+      fetchProductsByCollection("new-arrival", false, options),
+      fetchProductsByCollection("flash-sale", false, options),
+      fetchProductsByCollection("featured", false, options),
+    ]);
   };
 
   return {
@@ -124,6 +195,7 @@ export const useProductStore = defineStore("product", () => {
     addProduct,
     removeProduct,
     fetchProducts,
+    fetchHomeProducts,
     fetchSingleProduct,
     fetchProductsByCollection,
     collections,

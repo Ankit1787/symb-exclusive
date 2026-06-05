@@ -1,5 +1,6 @@
 import { defineStore } from "pinia";
-import { type User, type LoginDto, type registerDto, type UpdateProfileDto } from "~/types/api";
+import { toast } from "vue-sonner";
+import { type User, type LoginDto, type registerDto, type UpdateProfileDto, type ForgotPasswordDto } from "~/types/api";
 import { showApiErrorToast } from "~/utils/apiErrors";
 
 interface IUser {
@@ -15,7 +16,7 @@ const useAuthStore = defineStore(
     const profile = ref<User | null>(null);
     const token = ref<string | null>(null);
     const isAuthenticated = computed(() => !!token.value);
-    const { login: loginApi,register ,getProfile,updateProfile} = useAuth();
+    const { login: loginApi, forgotPassword: forgotPasswordApi, register, getProfile, updateProfile } = useAuth();
   
 
     const login = async (payload: LoginDto) => {
@@ -27,6 +28,17 @@ const useAuthStore = defineStore(
         return response;
       } catch (error) {
         showApiErrorToast(error, "Invalid email or password.");
+        return null;
+      }
+    };
+
+    const forgotPassword = async (payload: ForgotPasswordDto) => {
+      try {
+        const response = await forgotPasswordApi(payload);
+        toast.success(response.message || "Password reset instructions sent.");
+        return response;
+      } catch (error) {
+        showApiErrorToast(error, "Unable to send password reset instructions.");
         return null;
       }
     };
@@ -70,6 +82,7 @@ const useAuthStore = defineStore(
       profile,
       isAuthenticated,
       login,
+      forgotPassword,
       logout,
       signUp,
       getProfileDetails,

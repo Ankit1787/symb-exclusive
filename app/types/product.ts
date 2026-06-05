@@ -1,21 +1,62 @@
+export type CollectionType = "best-seller" | "new-arrival" | "flash-sale" | "featured" | string;
 
-export interface Product {
-  _id: string;
-  id: string;
-  title: string;
-  description: string;
-  price: number;
-  mrp: number;
-  discountPercentage: number;
-  images: string[];
-  thumbnail:string,
-  returnPolicy?:string,
-  category: string;
-  rating?: number;
-  stock?: number;
+export interface ProductColor {
+  name: string;
+  code: string;
 }
 
-export interface SingleProductResponse{
-  product:Product
-  similarProducts:Product[]
+export interface ProductVariant {
+  color: ProductColor;
+  size: "XS" | "S" | "M" | "L" | "XL" | "XXL";
+  stock: number;
+  price?: number;
+  discountPercentage?: number;
+  _id?: string;
+  id?: number;
+}
+
+export interface IProduct {
+  _id: string;
+  id?: number;
+  title: string;
+  description: string;
+  category: string;
+  mrp: number;
+  price: number;
+  discountPercentage: number;
+  rating: number;
+  stock: number;
+  tags: string[];
+  collections?: CollectionType[];
+  brand: string;
+  warrantyInformation?: string;
+  shippingInformation?: string;
+  returnPolicy?: string;
+  images: string[];
+  thumbnail: string;
+  variants: ProductVariant[];
+}
+
+export interface Product extends IProduct {
+  selectedSize?: string;
+  selectedColor?: string;
+}
+export interface ProductVariant {
+  color: {
+    name: string;
+    code: string;
+  };
+  size: "XS" | "S" | "M" | "L" | "XL" | "XXL";
+  stock: number;
+}
+export interface CartItem {
+  product: Product;
+  quantity: number;
+
+  selectedVariant: ProductVariant;
+}
+
+export interface SingleProductResponse {
+  product: Product;
+  similarProducts: Product[];
 }

@@ -17,7 +17,7 @@ const subtotal = computed(() =>
       </div>
       <div class="table-card">
         <div class="cart-head">
-          <span>Product</span><span>Price</span><span>Quantity</span
+          <span>Product</span><span>Size/Color</span><span>Price</span><span>Quantity</span
           ><span>Subtotal</span>
         </div>
         <div v-for="item in cartItems" :key="item.product._id" class="cart-row">
@@ -25,9 +25,10 @@ const subtotal = computed(() =>
             ><img :src="item.product.thumbnail" class="cart-image" />{{
               item.product.title
             }}
-            <button @click="cartStore.remove(item.product._id)" class="del-btn"><img src="/assets/icon-delete.svg" class="" height="24" width="24"/></button>
+            <button @click="cartStore.remove(item.product._id,item.selectedVariant)" class="del-btn"><img src="/assets/icon-delete.svg" class="" height="24" width="24"/></button>
             </span
           >
+          <span>{{ item?.selectedVariant?.size }} / {{ item?.selectedVariant?.color.name }}</span>
           <span>${{ item.product.price  }}</span>
           <div class="qty-box">
             <span>
@@ -35,11 +36,11 @@ const subtotal = computed(() =>
             </span>
 
             <div class="qty-controls">
-              <button @click="cartStore.increase(item.product._id)">
+              <button @click="cartStore.increase(item.product._id,item.selectedVariant)">
                 <img src="/assets/Drop-Up-Small.svg" height="16" width="16" />
               </button>
 
-              <button @click="cartStore.decrease(item.product._id)">
+              <button @click="cartStore.decrease(item.product._id,item.selectedVariant)">
                 <img src="/assets/Drop-Down-Small.svg" height="16" width="16" />
               </button>
             </div>

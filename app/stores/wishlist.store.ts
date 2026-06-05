@@ -28,7 +28,7 @@ export const useWishlistStore = defineStore(
       !!items.value.find((p) => p._id === productId);
     const count = computed(() => items.value.length);
 
-    return { items, add, remove,clear, toggle, contains, count };
+    return { items, add, remove, clear, toggle, contains, count };
   },
   { persist: true },
 );

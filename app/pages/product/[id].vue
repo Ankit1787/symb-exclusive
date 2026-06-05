@@ -12,28 +12,82 @@ const cart = useCartStore();
 const wishlist = useWishlistStore();
 
 const qty = ref(1);
-const selectedColor = ref<string | null>(null);
-const selectedSize = ref<string | null>(null);
 
-const availableColors = computed<string[]>(() => {
-  const product = currentProduct.value as any;
-  return product?.colors ?? product?.colours ?? ["#a0bce0", "#e07575"];
+
+
+
+
+const activeColor = ref<string>("");
+const activeSize = ref<string>("");
+
+const cartItem = computed(() => {
+  return cart.items.find((item) => item.product?._id === currentProduct.value?._id);
+});
+const isInCart = computed(() => !!cartItem.value);
+
+onMounted(() => {
+  const firstVariant =
+    currentProduct.value?.variants.find(v => v.stock > 0) ??
+    currentProduct.value?.variants[0];
+
+  if (!firstVariant) return;
+
+  activeColor.value = firstVariant.color.code;
+  activeSize.value = firstVariant.size;
+
 });
 
-const availableSizes = computed<string[]>(() => {
-  const product = currentProduct.value as any;
-  return product?.sizes ?? ["XS", "S", "M", "L", "XL"];
+
+const selectColor = (colorCode: string) => {
+  activeColor.value = colorCode;
+
+  const firstSize =
+    currentProduct.value?.variants.find(
+      v =>
+        v.color.code === colorCode &&
+        v.stock > 0
+    ) ??
+    currentProduct.value?.variants.find(
+      v => v.color.code === colorCode
+    );
+    console.log("cleicked")
+
+  if (firstSize) {
+    activeSize.value = firstSize.size;
+  }
+};
+
+const selectedVariant = computed(() => {
+  return currentProduct.value?.variants.find(
+    v =>
+      v.color.code === activeColor.value &&
+      v.size === activeSize.value
+  );
 });
 
-watch(
-  currentProduct,
-  () => {
-    selectedColor.value = null;
-    selectedSize.value = null;
-    qty.value = 1;
-  },
-  { immediate: true },
-);
+
+const availableColors = computed(() => {
+  const colors =  currentProduct.value?.variants.map(v => v.color);
+
+  return Array.from(
+    new Map(
+      colors?.map(color => [color.code, color])
+    ).values()
+  );
+});
+
+const availableSizes = computed(() => {
+  if (!activeColor.value) return [];
+
+  return [
+    ...new Set(
+        currentProduct.value?.variants
+        .filter(v => v.color.code === activeColor.value)
+        .map(v => v.size)
+    ),
+  ];
+});
+
 
 const increase = () => {
   qty.value++;
@@ -43,12 +97,12 @@ const decrease = () => {
 };
 
 const addToCart = () => {
-  if (!currentProduct.value) return;
-  if (availableColors.value.length && !selectedColor.value) {
+  if (!currentProduct.value|| !selectedVariant.value) return;
+  if (availableColors.value.length && !activeColor.value) {
     toast.error("Please select a color.");
     return;
   }
-  if (availableSizes.value.length && !selectedSize.value) {
+  if (availableSizes.value.length && !activeSize.value) {
     toast.error("Please select a size.");
     return;
   }
@@ -56,10 +110,11 @@ const addToCart = () => {
   cart.addToCart(
     {
       ...(currentProduct.value as any),
-      selectedColor: selectedColor.value,
-      selectedSize: selectedSize.value,
+
     },
     qty.value,
+    selectedVariant.value,
+
   );
   toast.success(`${currentProduct.value.title} has been added to your cart`);
 };
@@ -103,14 +158,15 @@ const toggleWishlist = () => {
             <span>Colours:</span>
             <button
               v-for="color in availableColors"
-              :key="color"
+              :key="color.code"
               type="button"
               class="swatch"
-              :class="{ active: selectedColor === color }"
-              :style="{ background: color }"
-              :aria-label="`Select color ${color}`"
-              @click="selectedColor = color"
-            ></button>
+              :class="{ active: activeColor === color.code }"
+              :style="{ background: color.code }"
+              :aria-label="`Select color ${color.code}`"
+ @click="selectColor(color.code)"     
+         ></button>
+
           </div>
           <div v-if="availableSizes.length" class="sizes">
             <span>Size:</span>
@@ -119,8 +175,8 @@ const toggleWishlist = () => {
               :key="size"
               type="button"
               class="size"
-              :class="{ active: selectedSize === size }"
-              @click="selectedSize = size"
+              :class="{ active: activeSize === size }"
+              @click="activeSize = size"
             >
               {{ size }}
             </button>
@@ -162,7 +218,6 @@ const toggleWishlist = () => {
         </aside>
       </section>
       <section class="related-products">
-        <SectionHeader eyebrow="Related Item" title="" />
         <ProductGrid
           :products="similarProducts"
           layout="row"

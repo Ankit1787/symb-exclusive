@@ -1241,7 +1241,7 @@ textarea {
 .cart-row,
 .cart-head {
   display: grid;
-  grid-template-columns: 2fr 1fr 1fr 1fr;
+  grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
   align-items: center;
   min-height: 72px;
   padding: 18px 40px;
@@ -1600,6 +1600,13 @@ textarea.field {
 
 .thumb {
   height: 138px;
+  width: 170px;
+}
+
+.thumb img {
+  width: 138px;
+  height: auto;
+  aspect-ratio: 1 / 1;
 }
 
 .details-main-img {
@@ -1877,6 +1884,17 @@ textarea.field {
     height: 520px;
   }
 
+  .thumb {
+    height: 125px;
+    width: 120px;
+
+  }
+
+  .thumb img {
+    height: 120px;
+    width: auto;
+  }
+
   .about-hero {
     grid-template-columns: 1fr 1fr;
     gap: 48px;
@@ -1891,7 +1909,7 @@ textarea.field {
   }
 }
 
-@media (max-width: 760px) {
+@media (max-width: 768px) {
   .section-head {
     align-items: start;
     flex-direction: column;
@@ -2066,7 +2084,7 @@ textarea.field {
   }
 
   .thumb {
-    height: 96px;
+    height: 120px;
   }
 
   .details-main-img {
@@ -2102,6 +2120,10 @@ textarea.field {
     width: min(100% - 28px, 360px);
     margin: 24px auto 0;
   }
+
+  .center-action {
+    margin-top: 40px;
+  }
 }
 
 @media (max-width: 900px) {
@@ -2122,7 +2144,6 @@ textarea.field {
   .header-main,
   .nav,
   .header-actions {
-    flex-wrap: wrap;
     gap: 16px;
     height: auto;
     padding: 18px 0;
@@ -2194,6 +2215,10 @@ textarea.field {
 
   .profile-actions {
     justify-content: start;
+  }
+
+  .thumbs {
+    grid-template-columns: 120px 120px 120px;
   }
 }
 
@@ -2374,7 +2399,20 @@ textarea.field {
   }
 
   .thumbs {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: 90px 90px 90px;
+    /* grid-template-columns: repeat(2, 1fr); */
+  }
+
+  .thumb {
+    width: 90px;
+    height: 100px;
+
+  }
+
+  .thumb img {
+    width: 100px;
+    height: 100px;
+    aspect-ratio: 1 / 1;
   }
 
   .swatches,
@@ -2637,11 +2675,11 @@ textarea.field {
   .slider-nav-btn {
     display: none !important;
   }
-  
+
   .base-slider {
     padding-bottom: 0 !important;
   }
-  
+
   .hero-phone {
     background: none !important;
     box-shadow: none !important;
@@ -2651,27 +2689,27 @@ textarea.field {
     align-items: center !important;
     justify-content: center !important;
   }
-  
+
   .hero-phone img {
     max-height: 160px !important;
     object-fit: contain !important;
     width: auto !important;
     display: block !important;
   }
-  
+
   .hero-slide {
     grid-template-columns: 1fr 1fr !important;
     gap: 20px !important;
     align-items: center !important;
   }
-  
+
   .hero-copy h1 {
     font-size: 28px !important;
     margin: 12px 0 !important;
     line-height: 1.25 !important;
     max-width: 100% !important;
   }
-  
+
   .hero-banner {
     min-height: auto !important;
     padding: 36px 28px !important;
@@ -2976,7 +3014,7 @@ textarea.field {
     margin: 6px 0 !important;
     line-height: 1.2 !important;
   }
-  
+
   .hero-copy p {
     font-size: 11px !important;
   }

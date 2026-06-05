@@ -56,7 +56,7 @@ const props = withDefaults(defineProps<SliderProps>(), {
   pagination: false,
   // Default responsive breakpoints — sensible for both row & grid
   breakpoints: () => ({
-    0:    { slidesPerView: 1,   spaceBetween: 12 },
+    0:    { slidesPerView: 2,   spaceBetween: 12 },
     480:  { slidesPerView: 2,   spaceBetween: 14 },
     768:  { slidesPerView: 2,   spaceBetween: 16 },
     1024: { slidesPerView: 3,   spaceBetween: 20 },
@@ -246,7 +246,13 @@ const autoplayConfig = computed(() => {
   .slider-nav-btn--next { left: calc(50% + 8px); }
 
   .base-slider {
+    
     padding-bottom: 60px; /* room for stacked nav */
+  }
+}
+@media (max-width: 768px){
+  .base-slider{
+    margin-top: 20px;
   }
 }
 </style>

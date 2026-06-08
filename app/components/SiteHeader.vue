@@ -201,17 +201,17 @@ watch(searchTerm, (value) => {
 
             <Transition name="dropdown">
               <div v-if="showProfileMenu" class="profile-dropdown">
-                <NuxtLink to="/account" class="dropdown-item">
+                <NuxtLink to="/myaccount" class="dropdown-item">
                   <img src="/assets/icon-user.svg" />
                   <span>Manage My Account</span>
                 </NuxtLink>
 
-                <NuxtLink to="/orders" class="dropdown-item">
+                <NuxtLink to="/myaccount/myorders" class="dropdown-item">
                   <img src="/assets/icon-mallbag.svg" />
                   <span>My Orders</span>
                 </NuxtLink>
 
-                <NuxtLink to="/cancellations" class="dropdown-item">
+                <!-- <NuxtLink to="/cancellations" class="dropdown-item">
                   <img src="/assets/icon-cancel.svg" />
                   <span>My Cancellations</span>
                 </NuxtLink>
@@ -219,7 +219,7 @@ watch(searchTerm, (value) => {
                 <NuxtLink to="/reviews" class="dropdown-item">
                   <img src="/assets/icon-review.svg" />
                   <span>My Reviews</span>
-                </NuxtLink>
+                </NuxtLink> -->
 
                 <button class="dropdown-item logout-btn" @click="logout">
                   <img src="/assets/Icon-logout.svg" />

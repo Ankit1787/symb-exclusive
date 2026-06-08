@@ -9,6 +9,7 @@ type FetchOptions = {
 export const useProductStore = defineStore("product", () => {
   const products = ref<Product[]>([]);
   const collections = ref<Product[]>([]);
+  const  categoryProducts = ref<Product[]>([]);
   const currentProduct = ref<Product | null>(null);
   const similarProducts = ref<Product[]>([]);
   const saleProducts = ref<Product[]>([]);
@@ -16,10 +17,11 @@ export const useProductStore = defineStore("product", () => {
   const newArrivals = ref<Product[]>([]);
   const featuredProducts = ref<Product[]>([]);
   const categories = ref<string[]>([]);
-  const { getAllProducts, getProductDetails, getProductsByCollection } =
+  const { getAllProducts, getProductDetails, getProductsByCollection, getProductByCategory } =
     useProductApi();
   const productsLoading = ref(false);
   const collectionLoading = ref(false);
+  const categoryProductsLoading = ref(false);
   const productDetailsLoading = ref(false);
   const relatedProductsLoading = ref(false);
   const bestSellerLoading = ref(false);
@@ -28,9 +30,11 @@ export const useProductStore = defineStore("product", () => {
   const featuredLoading = ref(false);
   const loading = computed(() => productsLoading.value);
   const collectionCache = ref<Record<string, Product[]>>({});
+  const categoryProductsCache = ref<Record<string, Product[]>>({});
   const productCache = ref<Record<string, SingleProductResponse>>({});
   const productsRequest = shallowRef<Promise<void> | null>(null);
   const collectionRequests = shallowRef<Record<string, Promise<void>>>({});
+  const categoryRequests = shallowRef<Record<string, Promise<void>>>({});
   const productRequests = shallowRef<Record<string, Promise<void>>>({});
 
   const collectionLoadingMap: Record<string, Ref<boolean>> = {
@@ -177,6 +181,39 @@ export const useProductStore = defineStore("product", () => {
 
     return collectionRequests.value[collection];
   };
+  const fetchProductsByCategory = async (
+    category: string,
+    options: FetchOptions = {},
+  ) => {
+    if (!options.force && categoryProductsCache.value[category]) {
+      categoryProducts.value = categoryProductsCache.value[category];
+      return;
+    }
+    if (categoryRequests.value[category]) {
+      await categoryRequests.value[category];
+      const cachedProducts = categoryProductsCache.value[category];
+      if (cachedProducts) {
+        categoryProducts.value = cachedProducts;
+      }
+      return;
+    }
+
+    categoryRequests.value[category] = (async () => {
+      try {
+        categoryProductsLoading.value = true;
+        const response = await getProductByCategory(category);
+        categoryProductsCache.value[category] = response;
+        categoryProducts.value = response;
+      } catch (err) {
+        console.error("Error fetching products by category:", err);
+      } finally {
+        categoryProductsLoading.value = false;
+        delete categoryRequests.value[category];
+      }
+    })();
+
+    return categoryRequests.value[category];
+  };
 
   const fetchHomeProducts = async (options: FetchOptions = {}) => {
     await Promise.all([
@@ -198,7 +235,9 @@ export const useProductStore = defineStore("product", () => {
     fetchHomeProducts,
     fetchSingleProduct,
     fetchProductsByCollection,
+    fetchProductsByCategory,
     collections,
+    categoryProducts,
     saleProducts,
     bestSellers,
     newArrivals,
@@ -207,6 +246,7 @@ export const useProductStore = defineStore("product", () => {
     loading,
     productsLoading,
     collectionLoading,
+    categoryProductsLoading,
     productDetailsLoading,
     relatedProductsLoading,
     bestSellerLoading,

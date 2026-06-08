@@ -98,6 +98,9 @@ textarea {
   color: var(--accent);
   font-weight: 600;
 }
+.price.active {
+  color: var(--accent);
+}
 
 .old-price {
   color: var(--muted);
@@ -254,7 +257,7 @@ textarea {
 }
 
 .section-title {
-  font-family: Georgia, "Times New Roman", serif;
+  font-family: Inter, sans-serif;
   font-size: 36px;
   line-height: 1.25;
   letter-spacing: 0.04em;
@@ -938,7 +941,7 @@ textarea {
 }
 
 .hero-copy h1 {
-  font-family: Georgia, "Times New Roman", serif;
+  font-family: Inter, sans-serif;
   font-size: 48px;
   line-height: 1.25;
   letter-spacing: 0.04em;
@@ -975,7 +978,7 @@ textarea {
 }
 
 .promo h2 {
-  font-family: Georgia, "Times New Roman", serif;
+  font-family: Inter, sans-serif;
   font-size: 48px;
   line-height: 1.25;
   max-width: 460px;
@@ -1218,7 +1221,7 @@ textarea {
 }
 
 .auth-card h1 {
-  font-family: Georgia, "Times New Roman", serif;
+  font-family: Inter , sans-serif;
   font-size: 36px;
   letter-spacing: 0.04em;
   margin: 0 0 24px;
@@ -1799,7 +1802,7 @@ textarea.field {
 }
 
 .error-page h1 {
-  font-family: Georgia, "Times New Roman", serif;
+  font-family: Inter ,"sans-serif";
   font-size: 110px;
   letter-spacing: 0.03em;
   margin: 0 0 40px;
@@ -2672,6 +2675,12 @@ textarea.field {
 /* Bottom Navigation Bar default hidden style */
 .bottom-nav {
   display: none;
+}
+.wishlist-box{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 50vh;
 }
 
 /* Media query overrides for mobile and tablet screens */

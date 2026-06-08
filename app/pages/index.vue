@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { browseCategories, categories } from "~/data/catalog";
+import { browseCategories, categories, CategoriesMap } from "~/data/catalog";
 import ProductSlider from "~/components/ProductSlider.vue";
 import Services from "~/components/Services.vue";
 const productStore = useProductStore();
@@ -26,8 +26,8 @@ void productStore.fetchHomeProducts();
     <div class="container">
       <section class="home-hero">
         <aside class="side-cats">
-          <NuxtLink v-for="cat in categories" :key="cat" :to="`/collection/${cat}`">
-            <span>{{ cat }}</span><span v-if="cat.includes('Fashion')">›</span>
+          <NuxtLink v-for="(value, key) in CategoriesMap" :key="value" :to="`/category/${key}`">
+            <span>{{ value }}</span>
           </NuxtLink>
         </aside>
         <div class="hero-banner">
@@ -78,7 +78,7 @@ void productStore.fetchHomeProducts();
         <SectionHeader eyebrow="Categories" title="Browse By Category" />
         <div class="category-grid">
           <NuxtLink v-for="(cat, index) in browseCategories" :key="cat.name" class="category-tile"
-            :class="{ active: index === 3 }" to="/category-dropdown">
+            :class="{ active: index === 3 }" :to="`/category/${cat.to}`">
             <img :src="cat.image" :alt="cat.name" class="category-icon" />
             <span>{{ cat.name }}</span>
           </NuxtLink>
@@ -120,7 +120,7 @@ void productStore.fetchHomeProducts();
             <div class="feature-content">
               <h3>PlayStation 5</h3>
               <p>Black and White version of the PS5 coming out on sale.</p>
-              <NuxtLink class="hero-link" to="/product-details">Shop Now</NuxtLink>
+              <NuxtLink class="hero-link" to="/category/mobile-accessories">Shop Now</NuxtLink>
             </div>
           </div>
           <div class="feature-side">
@@ -130,7 +130,7 @@ void productStore.fetchHomeProducts();
               <div class="feature-content">
                 <h3>Women’s Collections</h3>
                 <p>Featured woman collections that give you another vibe.</p>
-                <NuxtLink class="hero-link" to="/category-dropdown">Shop Now</NuxtLink>
+                <NuxtLink class="hero-link" to="/category/mobile-accessories">Shop Now</NuxtLink>
               </div>
             </div>
             <div class="feature-row">
@@ -140,7 +140,7 @@ void productStore.fetchHomeProducts();
                 <div class="feature-content">
                   <h3>Speakers</h3>
                   <p>Amazon wireless speakers</p>
-                  <NuxtLink class="hero-link" to="/product-details">Shop Now</NuxtLink>
+                  <NuxtLink class="hero-link" to="/category/mobile-accessories">Shop Now</NuxtLink>
                 </div>
               </div>
               <div class="feature-small feature-perfume">
@@ -148,7 +148,7 @@ void productStore.fetchHomeProducts();
                 <div class="feature-content">
                   <h3>Perfume</h3>
                   <p>GUCCI INTENSE OUD EDP</p>
-                  <NuxtLink class="hero-link" to="/product-details">Shop Now</NuxtLink>
+                  <NuxtLink class="hero-link" to="/category/mobile-accessories">Shop Now</NuxtLink>
                 </div>
               </div>
             </div>
@@ -156,7 +156,7 @@ void productStore.fetchHomeProducts();
         </div>
       </section>
 
-      <Services/>
+      <Services />
     </div>
   </NuxtLayout>
 </template>

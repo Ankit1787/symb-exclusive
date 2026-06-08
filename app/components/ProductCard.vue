@@ -11,7 +11,7 @@ const props = defineProps<{
 
 const cart = useCartStore();
 const wishlist = useWishlistStore();
-
+const showVariants = ref(false);
 const qty = ref(1);
 
 const isAdding = ref(false);
@@ -89,27 +89,21 @@ const selectedVariant = computed(() => {
 });
 
 
-const decreaseQty = () => {
-  if (!cartItem.value || !selectedVariant.value) return;
-  if (cartItem.value.quantity > 1) {
-    cart.decrease(props.product._id,selectedVariant.value as any);
-  } else {
-    cart.remove(props.product._id,selectedVariant.value as any);
-    toast.success(`${props.product.title} removed from cart`);
-  }
-};
 
 const increaseQty = () => {
-  cart.increase(props.product._id,selectedVariant.value as any);
+  qty.value++;
 };
-
+const decreaseQty = () => {
+  qty.value = Math.max(1, qty.value - 1);
+};
 const addToCart = async () => {
+
   if (!props.product || isAdding.value) return;
   isAdding.value = true;
   await new Promise((r) => setTimeout(r, 260));
 
 
-  cart.addToCart(props.product as any, qty.value,selectedVariant.value as any);
+  cart.addToCart(props.product as any, qty.value, selectedVariant.value as any);
   toast.success(`${props.product.title} has been added to your cart`);
   isAdding.value = false;
 };
@@ -145,12 +139,12 @@ const handleView = () => {
   <article class="product-card">
     <div class="product-media">
       <NuxtLink :to="`/product/${product._id}`" class="product-media-link">
-        <img :src="product.thumbnail" alt="product image" class="product-card-img" />
+        <img :src="product.thumbnail" alt="product image" loading="lazy" class="product-card-img" />
       </NuxtLink>
       <span class="discount">-{{ Math.round(product.discountPercentage) }}%</span>
 
       <!-- Cart controls overlay if in cart -->
-      <div v-if="isInCart" class="cart-controls" @click.stop.prevent>
+      <div v-if="isInCart || showVariants" class="cart-controls" @click.stop.prevent>
         <div class="controls-top">
           <!-- Colors -->
           <div class="color-options">
@@ -169,15 +163,22 @@ const handleView = () => {
           </div>
         </div>
         <!-- Quantity Stepper -->
-        <div class="stepper-row">
-          <button class="step-btn" @click="decreaseQty" aria-label="Decrease quantity">-</button>
-          <span class="qty-display">{{ cartItem?.quantity || 1 }}</span>
-          <button class="step-btn" @click="increaseQty" aria-label="Increase quantity">+</button>
+        <div class="actions">
+          <div class="stepper-row">
+            <button class="step-btn" @click="decreaseQty" aria-label="Decrease quantity">-</button>
+            <span class="qty-display">{{ qty}}</span>
+            <button class="step-btn" @click="increaseQty" aria-label="Increase quantity">+</button>
+          </div>
+          <button @click.stop.prevent="addToCart" :disabled="isAdding"
+            :class="['add-btn', { 'btn--adding': isAdding }]">
+            Add
+          </button>
         </div>
+
       </div>
 
       <!-- Add to cart overlay if not in cart -->
-      <button v-else @click.stop.prevent="addToCart" :disabled="isAdding"
+      <button v-else @click.stop.prevent="showVariants = true" :disabled="isAdding"
         :class="['add-cart', { 'btn--adding': isAdding }]">
         Add To Cart
       </button>
@@ -231,10 +232,13 @@ const handleView = () => {
 }
 
 .btn--adding {
+  border-color: #2fa84f !important;
   background: #2fa84f !important;
   box-shadow: 0 6px 18px rgba(47, 168, 79, 0.18);
   color: #fff;
 }
+
+
 
 /* Wishlist toggle feedback */
 .wish--toggling {
@@ -285,23 +289,26 @@ const handleView = () => {
 
 .color-options {
   display: flex;
-  gap: 6px;
 }
 
 .color-dot {
   width: 16px;
   height: 16px;
-  border-radius: 50%;
-  border: 1px solid transparent;
+  margin-right: 15px;
   cursor: pointer;
   padding: 0;
   transition: transform 0.15s ease, border-color 0.15s ease;
+  border-radius: 50%;
+  border: 0;
+  cursor: pointer;
+  background: #a0bce0;
+  box-shadow: 0 0 0 2px #fff,
+    0 0 0 3px #000;
 }
 
 .color-dot.active {
-  transform: scale(1.15);
-  border-color: #000;
-  box-shadow: 0 0 0 1px #fff, 0 0 0 2px #000;
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
 }
 
 .size-options {
@@ -310,7 +317,7 @@ const handleView = () => {
 }
 
 .size-tag {
-  font-size: 10px;
+  font-size: 12px;
   border: 1px solid #8e706e;
   background: transparent;
   color: #181c1f;
@@ -327,6 +334,16 @@ const handleView = () => {
   border-color: #db4444;
 }
 
+.add-btn {
+  background-color: #db4444;
+  color: #ffffff;
+  border-color: #db4444;
+  width: 100px;
+  font-size: 16px;
+  font-weight: 500;
+  border-radius: 4px;
+}
+
 .stepper-row {
   display: flex;
   align-items: center;
@@ -335,6 +352,7 @@ const handleView = () => {
   border-radius: 4px;
   height: 32px;
   padding: 0 8px;
+  width: 100%;
 }
 
 .step-btn {
@@ -367,5 +385,10 @@ const handleView = () => {
   display: block;
   width: 100%;
   height: 100%;
+}
+
+.actions {
+  display: flex;
+  gap: 10px;
 }
 </style>

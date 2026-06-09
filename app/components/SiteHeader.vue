@@ -138,7 +138,7 @@ watch(searchTerm, (value) => {
           <NuxtLink to="/">Home</NuxtLink>
           <NuxtLink to="/contact">Contact</NuxtLink>
           <NuxtLink to="/about">About</NuxtLink>
-          <NuxtLink to="/signup">Sign Up</NuxtLink>
+          <NuxtLink  v-if="!authStore.isAuthenticated" to="/signup">Sign Up</NuxtLink>
         </nav>
         <div class="header-actions">
           <div class="search-container" @click.stop>

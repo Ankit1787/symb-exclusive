@@ -13,9 +13,24 @@ const wishlist = useWishlistStore();
 
 const qty = ref(1);
 
+const selectedImage = ref("");
 
+watch(
+  () => currentProduct.value,
+  (product) => {
+    if (product) {
+      selectedImage.value =
+        product.images?.[0] ??
+        product.thumbnail ??
+        "";
+    }
+  },
+  { immediate: true }
+);
 
-
+const selectImage = (image: string) => {
+  selectedImage.value = image;
+};
 
 const activeColor = ref<string>("");
 const activeSize = ref<string>("");
@@ -138,12 +153,19 @@ const toggleWishlist = () => {
       </div>
       <section class="details-grid">
         <div class="thumbs">
-          <div v-for="image in currentProduct?.images" class="thumb">
+          <button
+            v-for="image in currentProduct?.images"
+            :key="image"
+            class="thumb"
+            :class="{ active: selectedImage === image }"
+            @click="selectImage(image)"
+            type="button"
+          >
             <img :src="image" />
-          </div>
+          </button>
         </div>
         <div class="details-main-img">
-          <img :src="currentProduct?.thumbnail" class="" />
+          <img :src="selectedImage || currentProduct?.thumbnail" class="" />
         </div>
         <aside class="details-panel">
           <h1>{{ currentProduct?.title }}</h1>

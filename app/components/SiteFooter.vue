@@ -16,7 +16,7 @@
         </section>
         <section>
           <h3>Account</h3>
-          <NuxtLink to="/account">My Account</NuxtLink>
+          <NuxtLink to="/myaccount">My Account</NuxtLink>
           <NuxtLink to="/login">Login / Register</NuxtLink>
           <NuxtLink to="/cart">Cart</NuxtLink>
           <NuxtLink to="/wishlist">Wishlist</NuxtLink>

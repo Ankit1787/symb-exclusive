@@ -6,13 +6,26 @@ export interface Order {
   orderNumber: string;
   createdAt?: Date| string|number;
   total: number;
-  status: "Delivered" | "Cancelled" | "In Transit";
+  status: "Delivered" | "Cancelled" |"Pending" | "Confirmed" | "Shipped"|"Returned";
   address:Address;
   items: {
     productId: string;
     title: string;
+    price:number;
     thumbnail: string;
     quantity: number;
     variant:ProductVariant
   }[];
+    orderTimeline?:orderTimeline[]
+paymentMethod?: string;
+paymentStatus?: "pending" | "completed" | "failed";
+  notes?: string;
+    updatedAt?: Date;
+
+}
+
+export interface orderTimeline{
+    title?:string,
+    date?:string,
+    description?:string
 }

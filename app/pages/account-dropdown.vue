@@ -2,7 +2,7 @@
   <NuxtLayout>
     <div class="dropdown-page">
       <div class="dropdown-demo">
-        <NuxtLink to="/account">◉ Manage My Account</NuxtLink>
+        <NuxtLink to="/myaccount">◉ Manage My Account</NuxtLink>
         <NuxtLink to="/cart">⌑ My Order</NuxtLink>
         <a>✕ My Cancellations</a>
         <a>☆ My Reviews</a>

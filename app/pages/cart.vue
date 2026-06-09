@@ -5,7 +5,7 @@ const subtotal = computed(() =>
   cartItems.value.reduce(
     (sum, item) => sum + item.product.price * item.quantity,
     0,
-  ),
+  )?.toFixed(2)||0
 );
 </script>
 

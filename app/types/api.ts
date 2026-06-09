@@ -28,6 +28,9 @@ export interface registerDto {
   confirmPassword: string;
 }
 export interface Address {
+  fullName?:string;
+  email?: string;
+  phoneNumber?: string;
   addressLine1?: string;
   addressLine2?: string;
   city?: string;

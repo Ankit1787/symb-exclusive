@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import useAuthStore from '~/stores/auth.store';
 import type { Product } from '~/types/product';
-import { categories } from '~/data/catalog';
+import { categories, CategoriesMap } from '~/data/catalog';
 
 const { isSidebarOpen } = useSidebar();
 
@@ -15,12 +15,22 @@ const searchResults = ref<Product[]>([]);
 const authStore = useAuthStore();
 const cartStore = useCartStore();
 const wishlistStore = useWishlistStore();
+const showMobileSearch = ref(false);
 const { totalItems: cartCount } = storeToRefs(cartStore);
 const { count: wishlistCount } = storeToRefs(wishlistStore);
 const { searchProducts } = useProductSearch();
 let searchTimer: ReturnType<typeof setTimeout> | null = null;
 let searchRequestId = 0;
 
+
+const openMobileSearch = () => {
+  showMobileSearch.value = true;
+};
+
+const closeMobileSearch = () => {
+  showMobileSearch.value = false;
+  searchFocused.value = false;
+};
 const trimmedSearch = computed(() => searchTerm.value.trim());
 const showSearchDropdown = computed(
   () =>
@@ -113,7 +123,7 @@ watch(searchTerm, (value) => {
       </div>
     </div>
     <div class="header">
-      <div class="container header-main">
+      <div v-if="!showMobileSearch" class="container header-main">
         <div class="logo-wrapper">
           <button class="hamburger-btn" type="button" @click="isSidebarOpen = true" aria-label="Open menu">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -142,7 +152,7 @@ watch(searchTerm, (value) => {
             <img src="/assets/search.svg" class="search-icon" @click="goSearch" />
 
             <Transition name="search-dropdown">
-              <div v-if="showSearchDropdown" class="search-dropdown">
+              <div v-if="showSearchDropdown && !showMobileSearch" class="search-dropdown">
                 <div v-if="searchLoading" class="search-state">Searching...</div>
                 <div v-else-if="searchError" class="search-state search-state-error">
                   {{ searchError }}
@@ -182,6 +192,9 @@ watch(searchTerm, (value) => {
                 </template>
               </div>
             </Transition>
+          </div>
+          <div class="search-mobile">
+            <img src="/assets/search2.svg" class="search-icon-mobile" @click="openMobileSearch" />
           </div>
           <NuxtLink class="icon-btn badge-icon" to="/wishlist" aria-label="Wishlist">
             <img src="/assets/wishlist.svg" />
@@ -230,6 +243,109 @@ watch(searchTerm, (value) => {
           </div>
         </div>
       </div>
+      <!-- Mobile Search Interface -->
+      <div v-else-if="showMobileSearch" class="container header-main mobile-search-wrapper">
+        <div class="mobile-search-header">
+          <button class="mobile-search-back" @click="closeMobileSearch" aria-label="Back">
+            <img src="/assets/buttonback.svg"/>
+          </button>
+          <div class="search-container-mobile" @click.stop>
+            <input
+              v-model="searchTerm"
+              @focus="searchFocused = true"
+              @keydown.enter="goSearch"
+              class="search"
+              placeholder="What are you looking for?"
+            />
+            <img src="/assets/search2.svg" class="search-icon" @click="goSearch" />
+
+            <Transition name="search-dropdown">
+              <div v-if="showSearchDropdown" class="search-dropdown">
+                <div v-if="searchLoading" class="search-state">Searching...</div>
+                <div v-else-if="searchError" class="search-state search-state-error">
+                  {{ searchError }}
+                </div>
+                <div
+                  v-else-if="trimmedSearch && !searchResults.length"
+                  class="search-state"
+                >
+                  No products found.
+                </div>
+                <template v-else>
+                  <button
+                    v-for="product in searchResults"
+                    :key="product._id || product.id"
+                    type="button"
+                    class="search-result"
+                    @click="openProduct(product)"
+                  >
+                    <img
+                      :src="product.thumbnail || product.images?.[0]"
+                      :alt="product.title"
+                    />
+                    <span>
+                      <strong>{{ product.title }}</strong>
+                      <small>{{ product.category }}</small>
+                    </span>
+                    <em>${{ product.price }}</em>
+                  </button>
+                  <button
+                    v-if="trimmedSearch"
+                    type="button"
+                    class="search-view-all"
+                    @click="goSearch"
+                  >
+                    View all results
+                  </button>
+                </template>
+              </div>
+            </Transition>
+          </div>
+        </div>
+
+        <!-- Mobile Search Dropdown -->
+        <!-- <Transition name="search-dropdown">
+          <div v-if="showSearchDropdown && showMobileSearch" class="mobile-search-dropdown">
+            <div v-if="searchLoading" class="search-state">Searching...</div>
+            <div v-else-if="searchError" class="search-state search-state-error">
+              {{ searchError }}
+            </div>
+            <div
+              v-else-if="trimmedSearch && !searchResults.length"
+              class="search-state"
+            >
+              No products found.
+            </div>
+            <template v-else>
+              <button
+                v-for="product in searchResults"
+                :key="product._id || product.id"
+                type="button"
+                class="search-result"
+                @click="openProduct(product)"
+              >
+                <img
+                  :src="product.thumbnail || product.images?.[0]"
+                  :alt="product.title"
+                />
+                <span>
+                  <strong>{{ product.title }}</strong>
+                  <small>{{ product.category }}</small>
+                </span>
+                <em>${{ product.price }}</em>
+              </button>
+              <button
+                v-if="trimmedSearch"
+                type="button"
+                class="search-view-all"
+                @click="goSearch"
+              >
+                View all results
+              </button>
+            </template>
+          </div>
+        </Transition> -->
+      </div>
     </div>
   </header>
 
@@ -254,14 +370,13 @@ watch(searchTerm, (value) => {
           <div class="sidebar-section-title">Categories</div>
           <nav class="sidebar-categories">
             <NuxtLink
-              v-for="cat in categories"
-              :key="cat"
-              :to="`/collection/${cat}`"
+              v-for="(value ,key) in CategoriesMap"
+              :key="key"
+              :to="`/category/${key}`"
               class="sidebar-cat-link"
               @click="isSidebarOpen = false"
             >
-              <span>{{ cat }}</span>
-              <span v-if="cat.includes('Fashion')" class="sidebar-caret">›</span>
+              <span>{{ value }}</span>
             </NuxtLink>
           </nav>
           

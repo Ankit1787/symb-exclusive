@@ -1,29 +1,128 @@
 <script setup lang="ts">
-import { dummyOrders } from '~/data/catalog';
-import type { Order } from '~/types/orders';
+import { ref, onMounted } from "vue";
+import { useOrderApi } from "~/composables/useOrderApi";
+import useAuthStore from "~/stores/auth.store";
+import type { Order } from "~/types/orders";
+import { showApiErrorToast } from "~/utils/apiErrors";
 
-const orders = ref<Order[]>(dummyOrders);
-const currentPage = ref(1);
-
-const pagination = reactive({
-  page: 1,
-  limit: 10,
-  totalPages: 1,
-  totalOrders: 0,
+definePageMeta({
+  middleware: ["auth"],
 });
 
+const authStore = useAuthStore();
+const orderApi = useOrderApi();
+
+const orders = ref<Order[]>([]);
 const loading = ref(false);
+
+const fetchOrders = async () => {
+  loading.value = true;
+  try {
+    
+      const userOrders = await orderApi.getUserOrders();
+      orders.value = (userOrders || []).map(mapBackendOrderToFrontend);
+    
+  } catch (error) {
+    showApiErrorToast(error, "Failed to load orders");
+  } finally {
+    loading.value = false;
+  }
+};
+
+onMounted(() => {
+  fetchOrders();
+});
+
+function mapBackendOrderToFrontend(backendOrder: any): Order {
+  let mappedStatus: "Delivered" | "Cancelled" |"Pending" | "Confirmed" | "Shipped" |"Returned" = "Pending";
+  if (backendOrder.status === "delivered") {
+    mappedStatus = "Delivered";
+  } else if (backendOrder.status === "cancelled") {
+    mappedStatus = "Cancelled";
+  }else if (backendOrder.status === "pending") {
+    mappedStatus = "Pending";
+  }else if (backendOrder.status === "confirmed") {
+    mappedStatus = "Confirmed";
+  }else if (backendOrder.status === "shipped") {
+    mappedStatus = "Shipped";
+  }else if (backendOrder.status === "returned") {
+    mappedStatus = "Returned";
+  }
+
+
+  return {
+    _id: backendOrder._id,
+    orderNumber: backendOrder.orderId || backendOrder._id,
+    createdAt: backendOrder.createdAt,
+    total: backendOrder.totalAmount || 0,
+    status: mappedStatus,
+    address: {
+      fullName: backendOrder.shippingAddress?.fullName || "",
+      addressLine1: backendOrder.shippingAddress?.addressLine1 || "",
+      addressLine2: backendOrder.shippingAddress?.addressLine2 || "",
+      city: backendOrder.shippingAddress?.city || "",
+      state: backendOrder.shippingAddress?.state || "",
+      postalCode: backendOrder.shippingAddress?.postalCode || "",
+      country: backendOrder.shippingAddress?.country || "",
+    },
+    items: (backendOrder.items || []).map((item: any) => ({
+      productId: item.productId,
+      title: item.title,
+      price: item.price,
+      thumbnail: item.thumbnail || "",
+      quantity: item.quantity,
+      variant: item.variant || {},
+    })),
+  };
+}
 </script>
+
 <template>
     <NuxtLayout>
         <div class="container page-gap">
             <div class="breadcrumb">
-                <NuxtLink to="/">My Account</NuxtLink><span>/</span><strong>My Orders</strong>
+                <NuxtLink to="/myaccount">My Account</NuxtLink><span>/</span><strong>My Orders</strong>
             </div>
             <section>
                 <SectionHeader eyebrow="Featured" title="My Orders" />
 
-                <div class="orders-table">
+                <div v-if="loading" class="orders-table skeleton-table" aria-hidden="true">
+                    <div class="table-head">
+                        <span>ORDER ID</span>
+                        <span>DATE</span>
+                        <span>ITEMS</span>
+                        <span>TOTAL</span>
+                        <span>STATUS</span>
+                        <span>ACTIONS</span>
+                    </div>
+                    <div v-for="n in 3" :key="n" class="table-row skeleton-row">
+                        <span class="order-id">
+                            <span class="skeleton-line" style="width: 70px; height: 18px; display: block;"></span>
+                        </span>
+                        <span class="order-date">
+                            <span class="skeleton-line" style="width: 80px; height: 18px; display: block;"></span>
+                        </span>
+                        <div class="items-cell">
+                            <span class="skeleton-box" style="width: 40px; height: 40px; border-radius: 4px; display: block; flex-shrink: 0;"></span>
+                            <span class="skeleton-line" style="width: 140px; height: 18px; display: block;"></span>
+                        </div>
+                        <span class="order-total">
+                            <span class="skeleton-line" style="width: 60px; height: 18px; display: block;"></span>
+                        </span>
+                        <span class="status">
+                            <span class="skeleton-line" style="width: 80px; height: 24px; border-radius: 4px; display: block;"></span>
+                        </span>
+                        <div class="actions">
+                            <span class="skeleton-line" style="width: 100%; height: 32px; border-radius: 4px; display: block;"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div v-else-if="orders.length === 0" class="empty-state">
+                    You have not placed any orders yet.
+                </div>
+
+                <div v-else class="orders-table">
                     <div class="table-head">
                         <span>ORDER ID</span>
                         <span>DATE</span>
@@ -59,21 +158,19 @@ const loading = ref(false);
                             ${{ order.total }}
                         </span>
 
-                        <span class="status" :class="order.status.toLowerCase()">
+                        <span class="status" :class="order.status.toLowerCase().replace(/\s+/g, '-')">
                             {{ order.status }}
                         </span>
 
                         <div class="actions">
-                            <button class="btn">
+                            <button @click="navigateTo(`/myaccount/myorders/${order.orderNumber}`)" class="btn">
                                 View
                             </button>
                         </div>
                     </div>
                 </div>
             </section>
-
         </div>
-
     </NuxtLayout>
 </template>
 <style scoped>
@@ -284,5 +381,15 @@ const loading = ref(false);
   background: #db4444;
   color: white;
   border-color: #db4444;
+}
+
+.loading-state,
+.empty-state {
+  text-align: center;
+  padding: 48px;
+  border: 1px solid #e5e5e5;
+  border-radius: 8px;
+  background: #fff;
+  color: #7d8184;
 }
 </style>

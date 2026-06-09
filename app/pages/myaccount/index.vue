@@ -1,9 +1,10 @@
 <script setup lang="ts">
+import { ref, reactive, computed, watch, onMounted } from 'vue';
 import { toast } from 'vue-sonner';
 import BaseTab from '~/components/BaseTab.vue';
 import ProductGrid from '~/components/ProductGrid.vue';
-import { dummyOrders } from '~/data/catalog';
 import useAuthStore from '~/stores/auth.store';
+import { useOrderApi } from '~/composables/useOrderApi';
 import type { UpdateProfileDto, User } from '~/types/api';
 import type { Order } from '~/types/orders';
 import { showApiErrorToast } from '~/utils/apiErrors';
@@ -13,7 +14,70 @@ definePageMeta({
 });
 const route = useRoute();
 const router = useRouter();
-const orders = ref<Order[]>(dummyOrders);
+const orderApi = useOrderApi();
+
+const cancelledOrders = ref<Order[]>([]);
+const returnedOrders = ref<Order[]>([]);
+const ordersLoading = ref(false);
+
+const fetchOrders = async () => {
+  ordersLoading.value = true;
+  try {
+   
+      const userOrders = await orderApi.getUserOrdersByStatus ("cancelled");
+      const returned = await orderApi.getUserOrdersByStatus ("returned");
+      cancelledOrders.value = (userOrders || []).map(mapBackendOrderToFrontend);
+      returnedOrders.value = (returned || []).map(mapBackendOrderToFrontend);
+    
+  } catch (error) {
+    showApiErrorToast(error, "Failed to load orders");
+  } finally {
+    ordersLoading.value = false;
+  }
+};
+
+function mapBackendOrderToFrontend(backendOrder: any): Order {
+  let mappedStatus: "Delivered" | "Cancelled" |"Pending" | "Confirmed" | "Shipped" |"Returned" = "Pending";
+  if (backendOrder.status === "delivered") {
+    mappedStatus = "Delivered";
+  } else if (backendOrder.status === "cancelled") {
+    mappedStatus = "Cancelled";
+  }else if (backendOrder.status === "pending") {
+    mappedStatus = "Pending";
+  }else if (backendOrder.status === "confirmed") {
+    mappedStatus = "Confirmed";
+  }else if (backendOrder.status === "shipped") {
+    mappedStatus = "Shipped";
+  }else if (backendOrder.status === "returned") {
+    mappedStatus = "Returned";
+  }
+
+
+  return {
+    _id: backendOrder._id,
+    orderNumber: backendOrder.orderId || backendOrder._id,
+    createdAt: backendOrder.createdAt,
+    total: backendOrder.totalAmount || 0,
+    status: mappedStatus,
+    address: {
+      fullName: backendOrder.shippingAddress?.fullName || "",
+      addressLine1: backendOrder.shippingAddress?.addressLine1 || "",
+      addressLine2: backendOrder.shippingAddress?.addressLine2 || "",
+      city: backendOrder.shippingAddress?.city || "",
+      state: backendOrder.shippingAddress?.state || "",
+      postalCode: backendOrder.shippingAddress?.postalCode || "",
+      country: backendOrder.shippingAddress?.country || "",
+    },
+    items: (backendOrder.items || []).map((item: any) => ({
+      productId: item.productId,
+      title: item.title,
+      price: item.price,
+      thumbnail: item.thumbnail || "",
+      quantity: item.quantity,
+      variant: item.variant || {},
+    })),
+  };
+}
 
 const activeTab = computed({
   get: () => (route.query.tab as string) || "profile",
@@ -28,7 +92,6 @@ const activeTab = computed({
   },
 });
 const authStore = useAuthStore();
-const wishlistStore = useWishlistStore();
 const tabs = [
   {
     key: "profile",
@@ -68,6 +131,7 @@ await callOnce("profile", async () => {
   await authStore.getProfileDetails();
 });
 
+
 watch(
   () => authStore.profile,
   (profile) => {
@@ -84,6 +148,7 @@ watch(
       postalCode: "",
       country: "",
     };
+    fetchOrders();
   },
   { immediate: true }
 );
@@ -216,11 +281,45 @@ const updateTab = (tab: string) => {
                 </form>
               </div>
 
-              <!-- Orders -->
+              <!-- Orders / Returns -->
               <div v-else-if="currentTab === 'returns'">
-                <h2>My Orders</h2>
+                <h2>My Returns</h2>
 
-                <div class="orders-table">
+                <div v-if="ordersLoading" class="orders-table skeleton-table" aria-hidden="true">
+                    <div class="table-head">
+                        <span>ORDER ID</span>
+                        <span>DATE</span>
+                        <span>ITEMS</span>
+                        <span>TOTAL</span>
+                        <span>STATUS</span>
+                        <span>ACTIONS</span>
+                    </div>
+                    <div v-for="n in 2" :key="n" class="table-row skeleton-row">
+                        <span class="order-id">
+                            <span class="skeleton-line" style="width: 70px; height: 18px; display: block;"></span>
+                        </span>
+                        <span class="order-date">
+                            <span class="skeleton-line" style="width: 80px; height: 18px; display: block;"></span>
+                        </span>
+                        <div class="items-cell">
+                            <span class="skeleton-box" style="width: 40px; height: 40px; border-radius: 4px; display: block; flex-shrink: 0;"></span>
+                            <span class="skeleton-line" style="width: 140px; height: 18px; display: block;"></span>
+                        </div>
+                        <span class="order-total">
+                            <span class="skeleton-line" style="width: 60px; height: 18px; display: block;"></span>
+                        </span>
+                        <span class="status">
+                            <span class="skeleton-line" style="width: 80px; height: 24px; border-radius: 4px; display: block;"></span>
+                        </span>
+                        <div class="actions">
+                            <span class="skeleton-line" style="width: 100%; height: 32px; border-radius: 4px; display: block;"></span>
+                        </div>
+                    </div>
+                </div>
+                <div v-else-if="returnedOrders.length === 0" class="empty-state">
+                    No returns or cancelled orders found.
+                </div>
+                <div v-else class="orders-table">
                     <div class="table-head">
                         <span>ORDER ID</span>
                         <span>DATE</span>
@@ -230,7 +329,7 @@ const updateTab = (tab: string) => {
                         <span>ACTIONS</span>
                     </div>
 
-                    <div v-for="order in orders.filter((order) => order.status === 'Cancelled')" :key="order._id" class="table-row">
+                    <div v-for="order in returnedOrders" :key="order._id" class="table-row">
                         <span class="order-id">#{{ order.orderNumber }}</span>
 
                         <span class="order-date">
@@ -256,25 +355,56 @@ const updateTab = (tab: string) => {
                             ${{ order.total }}
                         </span>
 
-                        <span class="status" :class="order.status.toLowerCase()">
+                        <span class="status" :class="order.status.toLowerCase().replace(/\s+/g, '-')">
                             {{ order.status }}
                         </span>
 
                         <div class="actions">
-                            <button class="btn">
+                            <button @click="navigateTo('/myaccount/myorders/' + order.orderNumber)" type="button" class="btn">
                                 View
                             </button>
                         </div>
                     </div>
                 </div>
-
-                <!-- later -->
-                <!-- <OrdersTable /> -->
               </div>
               <div v-else-if="currentTab === 'cancellations'">
-                <h2>My Orders</h2>
+                <h2>My Cancellations</h2>
 
-                <div class="orders-table">
+                <div v-if="ordersLoading" class="orders-table skeleton-table" aria-hidden="true">
+                    <div class="table-head">
+                        <span>ORDER ID</span>
+                        <span>DATE</span>
+                        <span>ITEMS</span>
+                        <span>TOTAL</span>
+                        <span>STATUS</span>
+                        <span>ACTIONS</span>
+                    </div>
+                    <div v-for="n in 2" :key="n" class="table-row skeleton-row">
+                        <span class="order-id">
+                            <span class="skeleton-line" style="width: 70px; height: 18px; display: block;"></span>
+                        </span>
+                        <span class="order-date">
+                            <span class="skeleton-line" style="width: 80px; height: 18px; display: block;"></span>
+                        </span>
+                        <div class="items-cell">
+                            <span class="skeleton-box" style="width: 40px; height: 40px; border-radius: 4px; display: block; flex-shrink: 0;"></span>
+                            <span class="skeleton-line" style="width: 140px; height: 18px; display: block;"></span>
+                        </div>
+                        <span class="order-total">
+                            <span class="skeleton-line" style="width: 60px; height: 18px; display: block;"></span>
+                        </span>
+                        <span class="status">
+                            <span class="skeleton-line" style="width: 80px; height: 24px; border-radius: 4px; display: block;"></span>
+                        </span>
+                        <div class="actions">
+                            <span class="skeleton-line" style="width: 100%; height: 32px; border-radius: 4px; display: block;"></span>
+                        </div>
+                    </div>
+                </div>
+                <div v-else-if="cancelledOrders.length === 0" class="empty-state">
+                    No cancelled orders found.
+                </div>
+                <div v-else class="orders-table">
                     <div class="table-head">
                         <span>ORDER ID</span>
                         <span>DATE</span>
@@ -284,7 +414,7 @@ const updateTab = (tab: string) => {
                         <span>ACTIONS</span>
                     </div>
 
-                    <div v-for="order in orders.filter((order) => order.status === 'Cancelled')" :key="order._id" class="table-row">
+                    <div v-for="order in cancelledOrders" :key="order._id" class="table-row">
                         <span class="order-id">#{{ order.orderNumber }}</span>
 
                         <span class="order-date">
@@ -310,20 +440,17 @@ const updateTab = (tab: string) => {
                             ${{ order.total }}
                         </span>
 
-                        <span class="status" :class="order.status.toLowerCase()">
+                        <span class="status" :class="order.status.toLowerCase().replace(/\s+/g, '-')">
                             {{ order.status }}
                         </span>
 
                         <div class="actions">
-                            <button class="btn">
+                            <button @click="navigateTo('/myaccount/myorders/' + order.orderNumber)" type="button" class="btn">
                                 View
                             </button>
                         </div>
                     </div>
                 </div>
-
-                <!-- later -->
-                <!-- <OrdersTable /> -->
               </div>
 
               <!-- Wishlist -->
@@ -532,5 +659,16 @@ const updateTab = (tab: string) => {
     padding: 10px;
     font-size: 14px;
   }
+}
+
+.loading-state,
+.empty-state {
+  text-align: center;
+  padding: 48px;
+  border: 1px solid #e5e5e5;
+  border-radius: 8px;
+  background: #fff;
+  color: #7d8184;
+  margin-top: 16px;
 }
 </style>

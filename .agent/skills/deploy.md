@@ -1,40 +1,27 @@
 # Frontend Deployment Skill
 
-This skill documents how to deploy the Nuxt frontend to cloud hosting providers like Vercel and Netlify using GitHub Actions or direct integrations.
+This skill documents how to deploy the Nuxt frontend to cloud hosting providers like Render.
 
 ## Deployment Target Options
 
-### Option A: Automated Deploy via GitHub Actions (Recommended)
-We have configured a deploy workflow in `.github/workflows/deploy.yml`. When changes are pushed or merged to the `main` branch, the workflow automatically builds and deploys the app to Vercel.
+### Option A: Automated Deploy via GitHub Actions & Render (Recommended)
+We have configured a deploy workflow in `.github/workflows/deploy.yml` that triggers on pushes to the `main` branch.
 
 #### Setup Repository Secrets on GitHub:
 1. Go to your frontend repository -> **Settings** -> **Secrets and variables** -> **Actions**.
-2. Add the following secrets:
-   - `VERCEL_TOKEN`: Your Vercel Personal Access Token (generate at Vercel Settings -> Tokens).
-   - `VERCEL_ORG_ID`: Your Vercel Organization ID (found in `~/.vercel/project.json` or team settings).
-   - `VERCEL_PROJECT_ID`: Your Vercel Project ID (found in `~/.vercel/project.json` or project settings).
+2. Add the following secret:
+   - `RENDER_DEPLOY_HOOK_URL`: The Deploy Hook URL provided by Render in your Web Service dashboard settings (looks like `https://api.render.com/deploy/srv-...`).
 
 ---
 
-### Option B: Deploy to Vercel (Direct Integration)
-Vercel has native integration for Nuxt projects.
+### Option B: Direct Deploy to Render (Auto Deploy)
+Render has native, built-in CD support.
 
-1. **GitHub Integration**: Link your GitHub repository in the Vercel Dashboard.
-2. **Configure Root Directory**: Vercel automatically detects Nuxt and sets:
-   - Build Command: `npm run build`
-   - Output Directory: `.output`
-3. **Environment Variables**: Add key:
-   - `NUXT_PUBLIC_API_URL` = your production server backend URL (e.g., `https://exclusive-api.onrender.com/api`).
-
----
-
-### Option C: Deploy to Netlify
-Netlify supports Nuxt out of the box.
-
-1. **GitHub Integration**: Add a site from your GitHub repository in Netlify.
-2. **Configure Base Directory**: Set Base directory to `frontend`.
-3. **Build Settings**:
-   - Build Command: `npm run build`
-   - Publish Directory: `frontend/.output/public`
-4. **Environment Variables**: Set:
-   - `NUXT_PUBLIC_API_URL` = your production backend API.
+1. Go to your **Render Dashboard** and click on your Frontend Web Service.
+2. Go to the **Settings** tab.
+3. Scroll down to the **Auto Deploy** setting and ensure it is set to **Yes**.
+4. Set the **Branch** to `main`.
+5. Verify build settings:
+   - Build Command: `npm install && npm run build`
+   - Start Command: `node .output/server/index.mjs` (for Nuxt node server output)
+   - Expose Port: Nuxt default or custom port.

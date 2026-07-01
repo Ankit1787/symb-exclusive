@@ -1,0 +1,68 @@
+# =========================
+# Environment Files
+# =========================
+.env
+.env.*
+!.env.example
+
+frontend/.env
+frontend/.env.*
+!frontend/.env.example
+
+server/.env
+server/.env.*
+!server/.env.example
+
+# =========================
+# Dependencies
+# =========================
+**/node_modules/
+
+# =========================
+# Nuxt / Nitro
+# =========================
+**/.nuxt/
+**/.output/
+**/.nitro/
+**/.cache/
+frontend/.output/
+frontend/.nitro/
+server/.output/
+server/.nitro/
+
+# =========================
+# Build Output
+# =========================
+**/dist/
+server/dist/
+**/build/
+**/.vercel/
+**/.netlify/
+
+# =========================
+# Logs
+# =========================
+*.log
+logs/
+
+# =========================
+# IDE
+# =========================
+.vscode/
+.idea/
+
+# =========================
+# OS
+# =========================
+.DS_Store
+Thumbs.db
+
+# =========================
+# Coverage
+# =========================
+coverage/
+
+# =========================
+# Docker
+# =========================
+.docker/

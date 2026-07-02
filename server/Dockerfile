@@ -38,7 +38,7 @@ COPY package*.json ./
 
 RUN npm ci --omit=dev
 
-COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/dist  /app/src/ai/skills ./src/ai/skills
 
 EXPOSE 5001
 

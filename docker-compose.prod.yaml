@@ -1,0 +1,34 @@
+services:
+
+  server:
+    build:
+      context: ./server
+      target: production
+
+    image: exclusive/server:latest
+
+    restart: unless-stopped
+
+    env_file:
+      - ./server/.env
+
+    expose:
+      - "5001"
+
+  frontend:
+    build:
+      context: ./frontend
+      target: production
+
+    image: exclusive/frontend:latest
+
+    restart: unless-stopped
+
+    env_file:
+      - ./frontend/.env
+
+    expose:
+      - "3000"
+
+    depends_on:
+      - server

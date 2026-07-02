@@ -38,7 +38,11 @@ COPY package*.json ./
 
 RUN npm ci --omit=dev
 
-COPY --from=builder /app/dist  /app/src/ai/skills ./src/ai/skills
+# Copy compiled application
+COPY --from=builder /app/dist ./dist
+
+# Copy markdown skills
+COPY --from=builder /app/src/ai/skills ./src/ai/skills
 
 EXPOSE 5001
 

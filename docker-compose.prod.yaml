@@ -1,11 +1,14 @@
-services:
+version: "3.9"
 
+services:
   server:
     build:
       context: ./server
       target: production
 
-    image: exclusive/server:latest
+    image: achauhan1787/ecommerce-server:v1
+
+    container_name: ecommerce-server
 
     restart: unless-stopped
 
@@ -15,12 +18,17 @@ services:
     expose:
       - "5001"
 
+    networks:
+      - ecommerce-network
+
   frontend:
     build:
       context: ./frontend
       target: production
 
-    image: exclusive/frontend:latest
+    image: achauhan1787/ecommerce-frontend:v1
+
+    container_name: ecommerce-frontend
 
     restart: unless-stopped
 
@@ -32,3 +40,30 @@ services:
 
     depends_on:
       - server
+
+    networks:
+      - ecommerce-network
+
+  nginx:
+    build:
+      context: ./nginx
+
+    image: achauhan1787/ecommerce-nginx:v1
+
+    container_name: ecommerce-nginx
+
+    restart: unless-stopped
+
+    ports:
+      - "80:80"
+
+    depends_on:
+      - frontend
+      - server
+
+    networks:
+      - ecommerce-network
+
+networks:
+  ecommerce-network:
+    driver: bridge

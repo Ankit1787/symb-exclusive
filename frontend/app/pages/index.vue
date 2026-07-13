@@ -5,7 +5,7 @@ import Services from "~/components/Services.vue";
 const productStore = useProductStore();
 const saleEndsAt = new Date();
 saleEndsAt.setDate(saleEndsAt.getDate() + 1);
-
+const a = 1;
 const bannerEndsAt = new Date();
 bannerEndsAt.setDate(bannerEndsAt.getDate() + 7);
 const {
@@ -31,20 +31,31 @@ void productStore.fetchHomeProducts();
           </NuxtLink>
         </aside>
         <div class="hero-banner">
-          <ProductSlider v-if="!flashSaleLoading && saleProducts.length" :items="saleProducts" :slides-per-view="1"
-            :space-between="0" :breakpoints="{
+          <ProductSlider
+            v-if="!flashSaleLoading && saleProducts.length"
+            :items="saleProducts"
+            :slides-per-view="1"
+            :space-between="0"
+            :breakpoints="{
               0: { slidesPerView: 1, spaceBetween: 0 },
               480: { slidesPerView: 1, spaceBetween: 0 },
               768: { slidesPerView: 1, spaceBetween: 0 },
               1024: { slidesPerView: 1, spaceBetween: 0 },
               1280: { slidesPerView: 1, spaceBetween: 0 },
-            }" :navigation="true" :pagination="true" :loop="true" :autoplay="{ delay: 4000 }">
+            }"
+            :navigation="true"
+            :pagination="true"
+            :loop="true"
+            :autoplay="{ delay: 4000 }"
+          >
             <template #item="{ item }">
               <div class="hero-slide">
                 <div class="hero-copy">
                   <p>{{ item.subtitle ?? "Featured" }}</p>
                   <h1>{{ item.title ?? item.name ?? item.title }}</h1>
-                  <NuxtLink class="hero-link" :to="`/product/${item._id || item.id}`">Shop Now <span>→</span></NuxtLink>
+                  <NuxtLink class="hero-link" :to="`/product/${item._id || item.id}`"
+                    >Shop Now <span>→</span></NuxtLink
+                  >
                   <CountdownTimer class="banner-countdown" :end-date="bannerEndsAt" compact />
                 </div>
                 <div class="hero-phone">
@@ -66,9 +77,14 @@ void productStore.fetchHomeProducts();
       </section>
 
       <section class="page-gap">
-
-        <ProductGrid :products="saleProducts" layout="row" title="Flash Sales" eyebrow="Today’s"
-          :loading="flashSaleLoading" :skeleton-count="4" />
+        <ProductGrid
+          :products="saleProducts"
+          layout="row"
+          title="Flash Sales"
+          eyebrow="Today’s"
+          :loading="flashSaleLoading"
+          :skeleton-count="4"
+        />
         <div class="center-action">
           <NuxtLink class="btn" to="/collection/sale">View All Products</NuxtLink>
         </div>
@@ -77,8 +93,13 @@ void productStore.fetchHomeProducts();
       <section>
         <SectionHeader eyebrow="Categories" title="Browse By Category" />
         <div class="category-grid">
-          <NuxtLink v-for="(cat, index) in browseCategories" :key="cat.name" class="category-tile"
-            :class="{ active: index === 3 }" :to="`/category/${cat.to}`">
+          <NuxtLink
+            v-for="(cat, index) in browseCategories"
+            :key="cat.name"
+            class="category-tile"
+            :class="{ active: index === 3 }"
+            :to="`/category/${cat.to}`"
+          >
             <img :src="cat.image" :alt="cat.name" class="category-icon" />
             <span>{{ cat.name }}</span>
           </NuxtLink>
@@ -86,8 +107,16 @@ void productStore.fetchHomeProducts();
       </section>
 
       <section class="page-gap">
-        <ProductGrid :products="bestSellers" layout="row" eyebrow="This Month" title="Best Selling Products"
-          action="View All" link="/collection/bestseller" :loading="bestSellerLoading" :skeleton-count="4" />
+        <ProductGrid
+          :products="bestSellers"
+          layout="row"
+          eyebrow="This Month"
+          title="Best Selling Products"
+          action="View All"
+          link="/collection/bestseller"
+          :loading="bestSellerLoading"
+          :skeleton-count="4"
+        />
       </section>
 
       <section class="promo">
@@ -104,8 +133,14 @@ void productStore.fetchHomeProducts();
 
       <section class="page-gap">
         <div class="">
-          <ProductGrid :products="products" layout="grid" eyebrow="Our Products" title="Explore Our Products"
-            :loading="productsLoading" :skeleton-count="8" />
+          <ProductGrid
+            :products="products"
+            layout="grid"
+            eyebrow="Our Products"
+            title="Explore Our Products"
+            :loading="productsLoading"
+            :skeleton-count="8"
+          />
         </div>
         <div class="center-action">
           <NuxtLink class="btn" to="/collection/all">View All Products</NuxtLink>
@@ -125,7 +160,11 @@ void productStore.fetchHomeProducts();
           </div>
           <div class="feature-side">
             <div class="feature-small feature-women">
-              <img src="/assets/women.png" class="newarrival-image feature-women" alt="Women’s Collections" />
+              <img
+                src="/assets/women.png"
+                class="newarrival-image feature-women"
+                alt="Women’s Collections"
+              />
 
               <div class="feature-content">
                 <h3>Women’s Collections</h3>

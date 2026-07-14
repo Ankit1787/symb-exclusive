@@ -1,0 +1,36 @@
+{
+  "name": "symb-exclusive",
+  "private": true,
+  "scripts": {
+    "prepare": "husky",
+
+    "lint": "npm --prefix frontend run lint && npm --prefix server run lint",
+
+    "lint:fix": "npm --prefix frontend run lint:fix && npm --prefix server run lint:fix",
+
+    "format": "npm --prefix frontend run format && npm --prefix server run format",
+
+    "format:check": "npm --prefix frontend run format:check && npm --prefix server run format:check",
+
+    "typecheck": "npm --prefix frontend run typecheck && npm --prefix server run typecheck",
+
+    "test": "npm --prefix frontend run test && npm --prefix server run test"
+  },
+  "devDependencies": {
+    "husky": "^9.1.7",
+    "lint-staged": "^17.0.8"
+  },
+  "lint-staged": {
+    "frontend/**/*.{js,ts,vue}": [
+      "npm --prefix frontend run lint --",
+      "npm --prefix frontend exec prettier --write"
+    ],
+    "server/**/*.{js,ts}": [
+      "npm --prefix server run lint --",
+      "npm --prefix server exec prettier --write"
+    ],
+    "*.{json,md,yml,yaml}": [
+      "prettier --write"
+    ]
+  }
+}
